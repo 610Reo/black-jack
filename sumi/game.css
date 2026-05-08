@@ -123,6 +123,7 @@ body {
     font-weight: 600;
     letter-spacing: 0.02em;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0; /* カードが潰れないように固定 */
 }
 
 .card.card-front {
@@ -153,11 +154,23 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* 【修正箇所】横一列を維持し、幅が狭い時に重なる設定 */
 .dealer-cards, .player-cards {
     display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
     justify-content: center;
+    flex-wrap: nowrap; /* 改行を禁止し、一列を維持 */
+    gap: 12px; /* 基本の隙間 */
+}
+
+/* 【修正箇所】画面幅が狭い場合（カードの合計幅がエリアを超える場合）の重なり調整 */
+@media (max-width: 600px) {
+    .dealer-cards, .player-cards {
+        gap: -50px; /* ネガティブマージンでカードを重ねる */
+    }
+    .card {
+        width: 85px; /* モバイル時は少しカード自体を小さく */
+        height: 125px;
+    }
 }
 
 /* ============ 【後文ベース】数値パネル・インフォ ============ */
@@ -446,6 +459,7 @@ body {
         border-bottom: 2px solid #ff8b3d;
     }
     .card {
+        /* media query内での元設定を維持 */
         width: 100px;
         height: 140px;
     }
