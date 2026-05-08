@@ -246,9 +246,6 @@ function startGame(betAmount) {
     updateHandDisplay();
 }
 
-settingsButton.addEventListener('click', function() {
-    alert('設定を開きます。まだ実装されていません。');
-});
 
 hitButton.addEventListener('click', function() {
     if (isGameOver) return;
