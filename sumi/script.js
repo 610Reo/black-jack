@@ -9,6 +9,47 @@ const betSpinner = document.getElementById('betSpinner');
 const currentBetAmount = document.getElementById('currentBetAmount');
 const confirmButton = document.getElementById('confirmButton');
 
+// ============ スライダーとスピナーの連動 ============
+// スライダーの値が変わった時
+betSlider.addEventListener('input', function() {
+    const value = this.value;
+    betSpinner.value = value;
+    updateBetDisplay(value);
+});
+
+// スピナーの値が変わった時
+betSpinner.addEventListener('input', function() {
+    const value = this.value;
+    betSlider.value = value;
+    updateBetDisplay(value);
+});
+
+// 掛け金表示を更新
+function updateBetDisplay(value) {
+    currentBetAmount.textContent = value;
+}
+
+// ============ 画面遷移処理 ============
+// ゲームスタートボタンをクリック
+startButton.addEventListener('click', function() {
+    // スタート画面を非表示、掛け金画面を表示
+    startScreen.classList.remove('active');
+    bettingScreen.classList.add('active');
+});
+
+// 確定ボタンをクリック
+confirmButton.addEventListener('click', function() {
+    const betAmount = betSpinner.value;
+    console.log('掛け金が決定されました:', betAmount);
+    
+    // 掛け金画面を非表示、ゲーム画面を表示
+    bettingScreen.classList.remove('active');
+    gameScreen.classList.add('active');
+    
+    // ここからゲーム開始処理をおこなう
+    startGame(betAmount);
+});
+
 const settingsButton = document.getElementById('settingsButton');
 const settingsOverlay = document.getElementById('settingsOverlay');
 const closeSettings = document.getElementById('closeSettings');
@@ -29,6 +70,8 @@ const playerNameDisplay = document.getElementById('playerName');
 const dealerCardsArea = document.querySelector('.dealer-cards');
 const playerCardsArea = document.querySelector('.player-cards');
 const keySpans = document.querySelectorAll('.key-list span');
+const statsTab = document.getElementById('statsTab');
+const statsPanel = document.getElementById('statsPanel');
 
 // ============ 2. データ管理 (状態) ============
 let playerHand = [];
@@ -44,6 +87,11 @@ let keyBinds = {
 };
 
 const cardPool = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
+
+// ============ 統計データ ============
+let totalGames = 0;
+let winCount = 0;
+let loseCount = 0;
 
 // ============ 3. キーバインド設定ロジック ============
 
@@ -95,8 +143,6 @@ window.addEventListener('keydown', function(e) {
     }
 });
 
-// ============ 4. ゲームロジック ============
-
 function randomCard() {
     return cardPool[Math.floor(Math.random() * cardPool.length)];
 }
@@ -125,6 +171,19 @@ function createCardElement(card, isHidden = false) {
     return cardDiv;
 }
 
+function updateStats() {
+    // 勝率計算（0除算防止）
+    const rate = totalGames === 0 
+        ? 0 
+        : Math.floor((winCount / totalGames) * 100);
+
+    // 各値をHTMLに反映
+    document.getElementById("totalGames").textContent = totalGames;
+    document.getElementById("winCount").textContent = winCount;
+    document.getElementById("loseCount").textContent = loseCount;
+    document.getElementById("winRate").textContent = rate;
+}
+
 function updateHandDisplay() {
     // プレイヤーカード表示
     playerCardsArea.innerHTML = '';
@@ -149,6 +208,32 @@ function updateHandDisplay() {
     }
 }
 
+function judgeResult() {
+    const playerTotal = calculateTotal(playerHand);
+    const dealerTotal = calculateTotal(dealerHand);
+
+    let result;
+
+    if (playerTotal > 21) result = "LOSE";
+    else if (dealerTotal > 21) result = "WIN";
+    else if (playerTotal > dealerTotal) result = "WIN";
+    else if (playerTotal < dealerTotal) result = "LOSE";
+    else result = "DRAW";
+
+    // 勝敗カウント
+    totalGames++;
+
+    if (result === "WIN") {
+        winCount++;
+    } else if (result === "LOSE") {
+        loseCount++;
+    }
+
+    updateStats();
+
+    alert("結果: " + result);
+}
+
 function startGame(betAmount) {
     console.log('ゲーム開始。掛け金: ¥' + betAmount);
     isGameOver = false;
@@ -161,7 +246,9 @@ function startGame(betAmount) {
     updateHandDisplay();
 }
 
-// ============ 5. イベントリスナー ============
+settingsButton.addEventListener('click', function() {
+    alert('設定を開きます。まだ実装されていません。');
+});
 
 hitButton.addEventListener('click', function() {
     if (isGameOver) return;
@@ -204,6 +291,15 @@ standButton.addEventListener('click', function() {
         }
         isGameOver = true;
     }, 300);
+});
+
+// 初期化
+window.addEventListener('load', function() {
+    console.log('ブラックジャック - 初期化完了');
+    updateBetDisplay(100);
+
+    updateStats();
+
 });
 
 betSlider.addEventListener('input', function() {
@@ -252,7 +348,16 @@ tabButtons.forEach(btn => {
     });
 });
 
+// ============ 戦績パネル表示切り替え ============
+if (statsTab) {
+    statsTab.addEventListener('click', function() {
+        if (statsPanel) {
+            statsPanel.classList.toggle('open');
+        }
+    });
+}
+
 window.addEventListener('load', () => {
     updateKeyDisplay();
     currentBetAmount.textContent = betSlider.value;
-});
+})

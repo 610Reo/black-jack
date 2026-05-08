@@ -1,3 +1,5 @@
+tip
+
 /* ============ 掛け金決定パネル ============ */
 #bettingScreen {
     background: rgba(0, 0, 0, 0.5);
@@ -193,3 +195,69 @@
 .confirm-button:active {
     transform: scale(0.98);
 }
+
+.side-action {
+    position: absolute;
+    left: -24px;
+    bottom: 20px;
+    top: auto;
+    transform: none;
+    width: 50px;
+    height: 140px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    color: #333;
+    font-size: 1.8rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+
+/* タブ */
+.stats-tab {
+    bottom: 60px;
+    left: 100px;
+    width: 50px;
+    height: 50px;
+    background: #333;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 100;
+}
+
+/* ============ 戦績パネル（スライド式） ============ */
+
+.stats-panel {
+    /* パディングやボーダーを幅に含める設定（これが重要！） */
+    box-sizing: border-box; 
+    
+    position: absolute;
+    left: -250px;
+    bottom: 20px;
+    
+    width: 200px; /* パネルの横幅 */
+    height: 300px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    border: 1px solid #ddd;
+    
+    /* アニメーション */
+    transition: left 0.3s ease-in-out;
+    z-index: 100;
+    display: none;
+}
+
+.stats-panel.open {
+    display: block;
+    left: 60px;
+}
+

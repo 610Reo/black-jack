@@ -1,8 +1,10 @@
+game
+
 /* ============ ゲーム画面スタイル ============ */
 #gameScreen {
     background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
     padding: 25px;
-    position: relative;
+        position: relative;
 }
 
 .game-board {
@@ -210,24 +212,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
-.side-action {
-    position: absolute;
-    left: -24px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 50px;
-    height: 140px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 30px;
-    color: #333;
-    font-size: 1.8rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
 .dealer-area {
     display: flex;
     flex-direction: column;
@@ -248,6 +232,7 @@
     align-items: center;
     gap: 10px;
     z-index: 2;
+    margin-bottom: 50px;
 }
 
 .player-area {
@@ -263,6 +248,32 @@
 
 
 .info-pill {
+    padding: 8px 12px;
+    border-radius: 4px;
+    background: #f8f8f8;
+    border: 1px solid #999;
+    color: #333;
+    min-width: auto;
+    text-align: center;
+    box-shadow: none;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.player-name {
+    padding: 8px 12px;
+    border-radius: 4px;
+    background: #f8f8f8;
+    border: 1px solid #999;
+    color: #333;
+    min-width: auto;
+    text-align: center;
+    box-shadow: none;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.player-total {
     padding: 8px 12px;
     border-radius: 4px;
     background: #f8f8f8;
@@ -314,6 +325,87 @@
     color: #333;
 }
 
+.dealer-cards {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.player-cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.card {
+    width: 110px;
+    height: 160px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card.card-front {
+    background: linear-gradient(160deg, #ffffff 0%, #fafafa 100%);
+    color: #121212;
+    border: 2px solid #999;
+}
+
+.card.card-back {
+    background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
+    color: #666;
+    border: 2px solid #999;
+}
+
+.deck-card {
+    width: 82.5px;
+    height: 120px;
+    border-radius: 6px;
+    background: linear-gradient(145deg, #f5f5f5 0%, #ececec 100%);
+    border: 2px solid #999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #666;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.player-header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.player-total strong {
+    display: block;
+    font-size: 28px;
+    margin-top: 4px;
+    color: #333;
+}
+
+.player-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 10px;
+}
+
 .game-control {
     min-width: 140px;
     padding: 12px 20px;
@@ -340,6 +432,63 @@
 
 .game-control:active {
     transform: translateY(0);
+}
+
+
+
+@media (max-width: 720px) {
+    .game-board {
+        padding: 18px;
+    }
+
+    .card {
+        width: 100px;
+        height: 140px;
+    }
+
+    .player-header,
+    .player-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .player-actions button {
+        width: 100%;
+    }
+}
+
+/* ============ レスポンシブ対応 ============ */
+@media (max-width: 768px) {
+    .betting-panel {
+        width: 85%;
+        height: 60%;
+        min-width: 280px;
+        padding: 20px;
+    }
+
+    .betting-panel h2 {
+        font-size: 20px;
+    }
+
+    .start-button {
+        width: 200px;
+        height: 60px;
+        font-size: 22px;
+    }
+
+    .bet-spinner {
+        width: 100px;
+        height: 45px;
+        font-size: 20px;
+    }
+
+    .current-bet {
+        font-size: 16px;
+    }
+
+    #currentBetAmount {
+        font-size: 24px;
+    }
 }
 
 /* ============ 設定オーバーレイ & タブ ============ */
