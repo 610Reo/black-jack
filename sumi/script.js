@@ -30,6 +30,7 @@ const playerScoreDisplay = document.getElementById('playerScore');
 const playerNameDisplay = document.getElementById('playerName');
 const dealerCardsArea = document.querySelector('.dealer-cards');
 const playerCardsArea = document.querySelector('.player-cards');
+const playerChipsDisplay = document.getElementById('playerChips');
 
 // タブ・キー設定・統計
 const tabButtons = document.querySelectorAll('.tab-btn');
@@ -44,6 +45,8 @@ let dealerHand = [];
 let dealerHiddenRevealed = false;
 let isGameOver = false;
 let isAssigningKey = null;
+let selectedBet = 100;
+let playerChips = 1000;
 
 let keyBinds = {
     hit: 'h',
@@ -91,9 +94,14 @@ function createCardElement(card, isHidden = false) {
 // ============ 4. UI更新ロジック ============
 
 function updateBetDisplay(value) {
-    betSlider.value = value;
-    betSpinner.value = value;
-    currentBetAmount.textContent = value;
+    selectedBet = Number(value);
+    betSlider.value = selectedBet;
+    betSpinner.value = selectedBet;
+    currentBetAmount.textContent = selectedBet;
+}
+
+function updateChipsDisplay() {
+    playerChipsDisplay.textContent = playerChips;
 }
 
 function updateStats() {
@@ -108,7 +116,8 @@ function updateHandDisplay() {
     // プレイヤー側
     playerCardsArea.innerHTML = '';
     playerHand.forEach(card => playerCardsArea.appendChild(createCardElement(card)));
-    playerScoreDisplay.textContent = calculateTotal(playerHand);
+    const playerTotal = calculateTotal(playerHand);
+    playerScoreDisplay.textContent = playerTotal > 21 ? 'バースト' : playerTotal;
 
     // ディーラー側
     dealerCardsArea.innerHTML = '';
@@ -151,11 +160,19 @@ function startGame(betAmount) {
 function finishGame(result) {
     isGameOver = true;
     totalGames++;
-    if (result === "WIN") winCount++;
-    if (result === "LOSE") loseCount++;
-    
+    if (result === "WIN") {
+        winCount++;
+        playerChips += selectedBet;
+    }
+    if (result === "LOSE") {
+        loseCount++;
+        playerChips -= selectedBet;
+    }
     updateStats();
+    updateChipsDisplay();
 }
+
+
 
 // ============ 6. イベントリスナーの登録 ============
 
@@ -242,7 +259,6 @@ hitButton.addEventListener('click', function() {
     updateHandDisplay();
 
     if (calculateTotal(playerHand) > 21) {
-        alert('バースト！あなたの負けです。');
         finishGame("LOSE");
     }
 });
@@ -291,4 +307,5 @@ window.addEventListener('load', () => {
     updateBetDisplay(100);
     updateStats();
     updateKeyDisplay();
+    updateChipsDisplay();
 });

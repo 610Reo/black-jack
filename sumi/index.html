@@ -68,10 +68,6 @@
                 <div class="dealer-area">
                     <div class="info-pill">ディーラ</div>
                     <div class="dealer-cards">
-                        <div class="card-flip" id="dealerCardFlip">
-                            <div class="card card-face card-front" id="dealerCardFront">表</div>
-                            <div class="card card-face card-back" id="dealerCardBack">裏</div>
-                        </div>
                     </div>
                     <div class="number-panel">
                         <span class="number-label">今の数字</span>
@@ -90,12 +86,13 @@
                             <span>今の数字</span>
                             <strong id="playerScore">--</strong>
                         </div>
-                        <div class="chip-pill">チップ</div>
+                        <div class="chip-pill">
+                            チップ
+                            <div class="chip-amount" id="playerChips">1000</div>
+                        </div>
                     </div>
 
                     <div class="player-cards">
-                        <div class="card card-front" id="playerCardFront">自分だけ表</div>
-                        <div class="card card-back" id="playerCardBack">自分だけ裏</div>
                     </div>
 
                     <div class="player-actions">
