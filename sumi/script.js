@@ -29,6 +29,7 @@ const playerNameDisplay = document.getElementById('playerName');
 const resultMessage = document.getElementById('resultMessage');
 const dealerCardsArea = document.querySelector('.dealer-cards');
 const playerCardsArea = document.querySelector('.player-cards');
+const playerChipsDisplay = document.getElementById('playerChips');
 
 const tabButtons = document.querySelectorAll('.tab-btn');
 const tabContents = document.querySelectorAll('.tab-content');
@@ -42,6 +43,10 @@ let dealerHand = [];
 let dealerHiddenRevealed = false;
 let isGameOver = false;
 let isAssigningKey = null;
+
+let selectedBet = 100;
+let playerChips = 1000;
+
 let lastConfirmedBet = 100; // 確定した時の賭け金を保存する変数
 
 let keyBinds = {
@@ -86,9 +91,14 @@ function createCardElement(card, isHidden = false) {
 
 // ============ 4. UI更新ロジック ============
 function updateBetDisplay(value) {
-    betSlider.value = value;
-    betSpinner.value = value;
-    currentBetAmount.textContent = value;
+    selectedBet = Number(value);
+    betSlider.value = selectedBet;
+    betSpinner.value = selectedBet;
+    currentBetAmount.textContent = selectedBet;
+}
+
+function updateChipsDisplay() {
+    playerChipsDisplay.textContent = playerChips;
 }
 
 function updateStats() {
@@ -102,7 +112,8 @@ function updateStats() {
 function updateHandDisplay() {
     playerCardsArea.innerHTML = '';
     playerHand.forEach(card => playerCardsArea.appendChild(createCardElement(card)));
-    playerScoreDisplay.textContent = calculateTotal(playerHand);
+    const playerTotal = calculateTotal(playerHand);
+    playerScoreDisplay.textContent = playerTotal > 21 ? 'バースト' : playerTotal;
 
     dealerCardsArea.innerHTML = '';
     dealerHand.forEach((card, index) => {
@@ -151,6 +162,23 @@ function startGame(betAmount) {
 function finishGame(result, message) {
     isGameOver = true;
     totalGames++;
+
+    if (result === "WIN") {
+        winCount++;
+        playerChips += selectedBet;
+    }
+    if (result === "LOSE") {
+        loseCount++;
+        playerChips -= selectedBet;
+    }
+    updateStats();
+    updateChipsDisplay();
+}
+
+
+
+// ============ 6. イベントリスナーの登録 ============
+
     if (result === "WIN") winCount++;
     if (result === "LOSE") loseCount++;
     updateStats();
@@ -160,6 +188,7 @@ function finishGame(result, message) {
         resultOverlay.classList.add('active');
     }, 500);
 }
+
 
 // ============ 6. イベントリスナー ============
 startButton.addEventListener('click', () => {
@@ -248,7 +277,14 @@ hitButton.addEventListener('click', function() {
     if (isGameOver) return;
     playerHand.push(randomCard());
     updateHandDisplay();
+
+
+    if (calculateTotal(playerHand) > 21) {
+        finishGame("LOSE");
+    }
+
     if (calculateTotal(playerHand) > 21) finishGame("LOSE", "バースト！あなたの負けです。");
+
 });
 
 standButton.addEventListener('click', function() {
@@ -297,4 +333,5 @@ window.addEventListener('load', () => {
     updateBetDisplay(100);
     updateStats();
     updateKeyDisplay();
+    updateChipsDisplay();
 });
