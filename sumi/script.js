@@ -5,6 +5,14 @@ const gameScreen = document.getElementById('gameScreen');
 const settingsOverlay = document.getElementById('settingsOverlay');
 const resultOverlay = document.getElementById('resultOverlay');
 
+
+console.log('startButton:', startButton);
+console.log('startScreen:', startScreen);
+console.log('bettingScreen:', bettingScreen);
+
+
+// ボタン
+
 const startButton = document.getElementById('startButton');
 const confirmButton = document.getElementById('confirmButton');
 const settingsButton = document.getElementById('settingsButton');
@@ -13,6 +21,8 @@ const hitButton = document.getElementById('hitButton');
 const standButton = document.getElementById('standButton');
 const doubleDownButton = document.getElementById('doubleDownButton');
 const retryButton = document.getElementById('retryButton');
+
+// 掛け金関連
 
 const betSlider = document.getElementById('betSlider');
 const betSpinner = document.getElementById('betSpinner');
@@ -116,6 +126,58 @@ function updateHandDisplay() {
     playerScoreDisplay.textContent = playerTotal > 21 ? 'バースト' : playerTotal;
 
     dealerCardsArea.innerHTML = '';
+
+    // dealerCardFlipを再追加
+    const dealerCardFlip = document.createElement('div');
+    dealerCardFlip.className = 'card-flip';
+    dealerCardFlip.id = 'dealerCardFlip';
+    const dealerCardFront = document.createElement('div');
+    dealerCardFront.className = 'card card-face card-front';
+    dealerCardFront.id = 'dealerCardFront';
+    const dealerCardBack = document.createElement('div');
+    dealerCardBack.className = 'card card-face card-back';
+    dealerCardBack.id = 'dealerCardBack';
+    dealerCardFlip.appendChild(dealerCardFront);
+    dealerCardFlip.appendChild(dealerCardBack);
+    dealerCardsArea.appendChild(dealerCardFlip);
+
+    // 追加カード表示（3枚目以降）
+    for (let i = 2; i < dealerHand.length; i++) {
+        dealerCardsArea.appendChild(createCardElement(dealerHand[i]));
+    }
+
+    // dealerCardFlipの更新
+    const [dealerFirst, dealerHidden] = dealerHand;
+    dealerCardFront.textContent = dealerFirst || '表';
+    dealerCardBack.textContent = dealerHiddenRevealed ? dealerHidden : '裏';
+    dealerCardFlip.classList.toggle('flipped', dealerHiddenRevealed);
+
+    // ディーラースコア表示
+    dealerScoreDisplay.textContent = dealerHiddenRevealed ? calculateTotal(dealerHand) : cardValue(dealerHand[0]);
+}
+
+function animateCardDraw(card, targetArea, callback) {
+    const deckCard = document.querySelector('.deck-card');
+    const targetRect = targetArea.getBoundingClientRect();
+    const deckRect = deckCard.getBoundingClientRect();
+
+    // 新しいカード要素を作成
+    const animatingCard = document.createElement('div');
+    animatingCard.className = 'card card-front card-animating';
+    animatingCard.textContent = card;
+    animatingCard.style.left = deckRect.left + 'px';
+    animatingCard.style.top = deckRect.top + 'px';
+
+    // ターゲット位置を計算（最後のカードの位置）
+    const existingCards = targetArea.querySelectorAll('.card');
+    let targetX = 0;
+    let targetY = 0;
+    if (existingCards.length > 0) {
+        const lastCard = existingCards[existingCards.length - 1];
+        const lastRect = lastCard.getBoundingClientRect();
+        targetX = lastRect.left - deckRect.left + 120; // 次のカードの位置
+        targetY = lastRect.top - deckRect.top;
+
     dealerHand.forEach((card, index) => {
         const isHidden = (index === 1 && !dealerHiddenRevealed);
         dealerCardsArea.appendChild(createCardElement(card, isHidden));
@@ -124,8 +186,46 @@ function updateHandDisplay() {
     if (dealerHiddenRevealed) {
         dealerScoreDisplay.textContent = calculateTotal(dealerHand);
     } else {
-        dealerScoreDisplay.textContent = cardValue(dealerHand[0]);
+        targetX = targetRect.left - deckRect.left;
+        targetY = targetRect.top - deckRect.top;
     }
+
+
+    animatingCard.style.setProperty('--target-x', targetX + 'px');
+    animatingCard.style.setProperty('--target-y', targetY + 'px');
+
+    document.body.appendChild(animatingCard);
+
+    // アニメーション終了後にコールバック
+    animatingCard.addEventListener('animationend', () => {
+        document.body.removeChild(animatingCard);
+        callback();
+    });
+}
+
+function dealerDrawCards() {
+    return new Promise((resolve) => {
+        let dTotal = calculateTotal(dealerHand);
+        if (dTotal >= 17) {
+            resolve();
+            return;
+        }
+
+        const drawNext = () => {
+            const newCard = randomCard();
+            animateCardDraw(newCard, dealerCardsArea, () => {
+                dealerHand.push(newCard);
+                updateHandDisplay();
+                dTotal = calculateTotal(dealerHand);
+                if (dTotal < 17) {
+                    drawNext();
+                } else {
+                    resolve();
+                }
+            });
+        };
+        drawNext();
+    });
 
     if (playerHand.length === 2 && !isGameOver) {
         doubleDownButton.disabled = false;
@@ -134,6 +234,7 @@ function updateHandDisplay() {
         doubleDownButton.disabled = true;
         doubleDownButton.style.opacity = "0.5";
     }
+
 }
 
 function updateKeyDisplay() {
@@ -159,7 +260,33 @@ function startGame(betAmount) {
     updateHandDisplay();
 }
 
+
+
+// ============ 5. イベントリスナー ============
+
+hitButton.addEventListener('click', function() {
+    if (isGameOver) return;
+    if (playerHand.length >= 5) return alert('5枚が上限です');
+
+    const newCard = randomCard();
+    animateCardDraw(newCard, playerCardsArea, () => {
+        playerHand.push(newCard);
+        updateHandDisplay();
+
+        if (calculateTotal(playerHand) > 21) {
+            alert('バースト！あなたの負けです。');
+            isGameOver = true;
+        }
+    });
+});
+
+standButton.addEventListener('click', async function() {
+    if (isGameOver) return;
+
+function finishGame(result) {
+
 function finishGame(result, message) {
+
     isGameOver = true;
     totalGames++;
 
@@ -181,6 +308,9 @@ function finishGame(result, message) {
 
     if (result === "WIN") winCount++;
     if (result === "LOSE") loseCount++;
+
+
+ 
     updateStats();
 
     setTimeout(() => {
@@ -190,8 +320,52 @@ function finishGame(result, message) {
 }
 
 
+
+    // ディーラーの思考ロジック（17以上になるまで引く）
+    await dealerDrawCards();
+
+    const pTotal = calculateTotal(playerHand);
+    const dTotal = calculateTotal(dealerHand);
+    
+    setTimeout(() => {
+        if (dTotal > 21) {
+            alert(`ディーラーがバースト（${dTotal}）。あなたの勝ちです！`);
+        } else if (pTotal > dTotal) {
+            alert(`あなたの勝ち！ (Player: ${pTotal} / Dealer: ${dTotal})`);
+        } else if (pTotal < dTotal) {
+            alert(`あなたの負けです。 (Player: ${pTotal} / Dealer: ${dTotal})`);
+        } else {
+            alert(`引き分け (Push) です。 (Score: ${pTotal})`);
+        }
+        isGameOver = true;
+    }, 300);
+});
+
+betSlider.addEventListener('input', function() {
+    betSpinner.value = this.value;
+    currentBetAmount.textContent = this.value;
+});
+
+betSpinner.addEventListener('input', function() {
+    betSlider.value = this.value;
+    currentBetAmount.textContent = this.value;
+});
+
+bgmSlider.addEventListener('input', function() {
+    bgmValueDisplay.textContent = this.value;
+});
+
+seSlider.addEventListener('input', function() {
+    seValueDisplay.textContent = this.value;
+});
+
+// ============ 6. イベントリスナーの登録 ============
+
+
+
 // ============ 6. イベントリスナー ============
 startButton.addEventListener('click', () => {
+    console.log('startButton clicked');
     startScreen.classList.remove('active');
     bettingScreen.classList.add('active');
 });
