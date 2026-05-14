@@ -63,7 +63,7 @@
         <div id="gameScreen" class="screen">
             <div class="game-board">
                 <button id="settingsButton" class="settings-button">設定</button>
-                <div class="side-action">→</div>
+                <div id="statsTab" class="side-action">→</div>
 
                 <div class="dealer-area">
                     <div class="info-pill">ディーラ</div>
@@ -98,6 +98,15 @@
                         <button id="hitButton" class="game-control">ヒット</button>
                         <button id="standButton" class="game-control secondary">スタンド</button>
                     </div>
+                </div>
+
+                <!-- 勝率パネル -->
+                <div id="statsPanel" class="stats-panel">
+                    <h3>戦績</h3>
+                    <p>試合数: <span id="totalGames">0</span></p>
+                    <p>勝ち: <span id="winCount">0</span></p>
+                    <p>負け: <span id="loseCount">0</span></p>
+                    <p>勝率: <span id="winRate">0</span>%</p>
                 </div>
             </div>
 
