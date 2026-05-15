@@ -59,6 +59,8 @@ const cardPool = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
 let totalGames = 0;
 let winCount = 0;
 let loseCount = 0;
+let playerChips = 1000; // プレイヤーの初期チップ数
+let selectedBet = 100; // 選択された賭け金
 
 // ============ 3. ヘルパー関数 ============
 function randomCard() {
@@ -90,7 +92,7 @@ function createCardElement(card, isHidden = false) {
 
 // ============ 4. UI更新ロジック ============
 function updateBetDisplay(value) {
-
+    
     selectedBet = Number(value);
     betSlider.value = selectedBet;
     betSpinner.value = selectedBet;
@@ -104,7 +106,6 @@ function updateChipsDisplay() {
     betSlider.value = value;
     betSpinner.value = value;
     currentBetAmount.textContent = value;
-
 }
 
 function updateStats() {
@@ -113,6 +114,7 @@ function updateStats() {
     document.getElementById("winCount").textContent = winCount;
     document.getElementById("loseCount").textContent = loseCount;
     document.getElementById("winRate").textContent = rate;
+    document.getElementById("playerChips").textContent = playerChips;
 }
 
 function updateHandDisplay() {
@@ -168,7 +170,6 @@ function finishGame(result, message) {
     isGameOver = true;
     totalGames++;
 
-
     if (result === "WIN") {
         winCount++;
         playerChips += selectedBet;
@@ -182,55 +183,14 @@ function finishGame(result, message) {
         }
     }
     updateStats();
-    updateChipsDisplay();
-}
-
-function dealerAction() {
-    dealerHiddenRevealed = true;
     
-    // ディーラーの思考ロジック
-    let dTotal = calculateTotal(dealerHand);
-    while (dTotal < 17) {
-        dealerHand.push(randomCard());
-        dTotal = calculateTotal(dealerHand);
-    }
-    updateHandDisplay();
-    return dTotal;
+    // 結果画面を表示
+    resultMessage.textContent = message;
+    resultOverlay.classList.add('active');
 }
+    
 
-function determineWinner(dealerTotal, playerTotal) {
-    setTimeout(() => {
-        let result = "";
-        if (dealerTotal > 21) {
-            alert(`ディーラーがバースト（${dealerTotal}）。あなたの勝ちです！`);
-            result = "WIN";
-        } else if (playerTotal > dealerTotal) {
-            alert(`あなたの勝ち！ (${playerTotal} vs ${dealerTotal})`);
-            result = "WIN";
-        } else if (playerTotal < dealerTotal) {
-            alert(`あなたの負けです。 (${playerTotal} vs ${dealerTotal})`);
-            result = "LOSE";
-        } else {
-            alert(`引き分け (Push) です。 (Score: ${playerTotal})`);
-            result = "DRAW";
-        }
-        finishGame(result);
-    }, 300);
-}
-
-
-
-// ============ 6. イベントリスナーの登録 ============
-
-
-    if (result === "WIN") winCount++;
-    if (result === "LOSE") loseCount++;
-    updateStats();
-
-    setTimeout(() => {
-        resultMessage.textContent = message;
-        resultOverlay.classList.add('active');
-    }, 500);
+    
 
 
 // ============ 6. イベントリスナー ============
@@ -245,7 +205,7 @@ confirmButton.addEventListener('click', () => {
     gameScreen.classList.add('active');
 
     startGame(selectedBet);
-
+    
     startGame(lastConfirmedBet);
 });
 
@@ -261,7 +221,6 @@ retryButton.addEventListener('click', () => {
     dealerCardsArea.innerHTML = '';
     playerScoreDisplay.textContent = '--';
     dealerScoreDisplay.textContent = '--';
-
 });
 
 [betSlider, betSpinner].forEach(el => {
@@ -329,12 +288,6 @@ hitButton.addEventListener('click', function() {
 
 standButton.addEventListener('click', function() {
     if (isGameOver) return;
-    
-    const dealerTotal = dealerAction();
-    const playerTotal = calculateTotal(playerHand);
-    
-    determineWinner(dealerTotal, playerTotal);
-
     dealerHiddenRevealed = true;
     let dTotal = calculateTotal(dealerHand);
     while (dTotal < 17) {
@@ -352,7 +305,6 @@ standButton.addEventListener('click', function() {
         else { message = "引き分けです。"; }
         finishGame(result, message);
     }, 300);
-
 });
 
 doubleDownButton.addEventListener('click', function() {

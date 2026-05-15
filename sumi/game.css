@@ -198,7 +198,6 @@ body {
     font-weight: 600;
     color: #555;
     font-size: 14px;
-    text-align: center;
 }
 
 .number-panel {
@@ -237,7 +236,6 @@ body {
     align-items: center;
     gap: 20px;
     flex-wrap: wrap;
-    margin-left: 25px;
 }
 
 .player-actions {
