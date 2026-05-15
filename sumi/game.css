@@ -123,7 +123,7 @@ body {
     font-weight: 600;
     letter-spacing: 0.02em;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    flex-shrink: 0; /* カードが潰れないように固定 */
+    flex-shrink: 0;
 }
 
 .card.card-front {
@@ -154,26 +154,24 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* 【修正箇所】横一列を維持し、幅が狭い時に重なる設定 */
 .dealer-cards, .player-cards {
     display: flex;
     justify-content: center;
-    flex-wrap: nowrap; /* 改行を禁止し、一列を維持 */
-    gap: 12px; /* 基本の隙間 */
+    flex-wrap: nowrap;
+    gap: 12px;
 }
 
-/* 【修正箇所】画面幅が狭い場合（カードの合計幅がエリアを超える場合）の重なり調整 */
 @media (max-width: 600px) {
     .dealer-cards, .player-cards {
-        gap: -50px; /* ネガティブマージンでカードを重ねる */
+        gap: -50px;
     }
     .card {
-        width: 85px; /* モバイル時は少しカード自体を小さく */
+        width: 85px;
         height: 125px;
     }
 }
 
-/* ============ 【後文ベース】数値パネル・インフォ ============ */
+/* ============ 数値パネル・インフォ ============ */
 .info-pill, .player-name, .player-total {
     padding: 8px 12px;
     border-radius: 4px;
@@ -277,7 +275,7 @@ body {
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* ============ 【前文ベース】設定画面スタイル ============ */
+/* ============ 設定画面スタイル（詳細装飾あり） ============ */
 .settings-button {
     position: absolute;
     top: 36px;
@@ -373,6 +371,7 @@ body {
     display: block;
 }
 
+/* --- 設定画面内部のパーツ装飾 --- */
 .tab-content h3 {
     margin-bottom: 20px;
     border-bottom: 2px solid #f0f0f0;
@@ -390,7 +389,6 @@ body {
     font-weight: bold;
 }
 
-/* スライダーバー修正：flex:1で長さを確保 */
 .volume-control-row {
     display: flex;
     align-items: center;
@@ -399,7 +397,7 @@ body {
 }
 
 .volume-control-row input[type="range"] {
-    flex: 1; 
+    flex: 1;
     cursor: pointer;
 }
 
@@ -428,6 +426,41 @@ body {
     padding: 2px 8px;
     border-radius: 4px;
     font-family: monospace;
+}
+
+/* ============ 結果表示（リトライ）オーバーレイ ============ */
+.result-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+    border-radius: 8px;
+}
+
+.result-overlay.active {
+    display: flex;
+}
+
+.result-content {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+#resultMessage {
+    font-size: 32px;
+    margin-bottom: 24px;
+    color: #333;
+    font-weight: bold;
 }
 
 /* ============ レスポンシブ ============ */
@@ -461,7 +494,6 @@ body {
         border-bottom: 2px solid #ff8b3d;
     }
     .card {
-        /* media query内での元設定を維持 */
         width: 100px;
         height: 140px;
     }

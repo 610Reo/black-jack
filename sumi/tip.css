@@ -1,5 +1,3 @@
-tip
-
 /* ============ 掛け金決定パネル ============ */
 #bettingScreen {
     background: rgba(0, 0, 0, 0.5);
@@ -235,14 +233,13 @@ tip
 /* ============ 戦績パネル（スライド式） ============ */
 
 .stats-panel {
-    /* パディングやボーダーを幅に含める設定（これが重要！） */
     box-sizing: border-box; 
     
     position: absolute;
     left: -250px;
     bottom: 20px;
     
-    width: 200px; /* パネルの横幅 */
+    width: 200px; 
     height: 300px;
     background: white;
     padding: 20px;
@@ -250,7 +247,6 @@ tip
     box-shadow: 0 5px 20px rgba(0,0,0,0.3);
     border: 1px solid #ddd;
     
-    /* アニメーション */
     transition: left 0.3s ease-in-out;
     z-index: 100;
     display: none;
@@ -260,4 +256,3 @@ tip
     display: block;
     left: 60px;
 }
-

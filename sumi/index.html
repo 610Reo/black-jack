@@ -66,9 +66,10 @@
                 <div id="statsTab" class="side-action">→</div>
 
                 <div class="dealer-area">
-                    <div class="info-pill">ディーラ</div>
+                    <div class="info-pill">ディーラー</div>
                     <div class="dealer-cards">
                     </div>
+                        </div>
                     <div class="number-panel">
                         <span class="number-label">今の数字</span>
                         <span class="number-value" id="dealerScore">--</span>
@@ -94,14 +95,15 @@
 
                     <div class="player-cards">
                     </div>
+                        </div>
 
                     <div class="player-actions">
                         <button id="hitButton" class="game-control">ヒット</button>
+                        <button id="doubleDownButton" class="game-control secondary" style="background: #d4af37;">ダブルダウン</button>
                         <button id="standButton" class="game-control secondary">スタンド</button>
                     </div>
                 </div>
 
-                <!-- 勝率パネル -->
                 <div id="statsPanel" class="stats-panel">
                     <h3>戦績</h3>
                     <p>試合数: <span id="totalGames">0</span></p>
@@ -110,6 +112,13 @@
                     <p>勝率: <span id="winRate">0</span>%</p>
                     <p>連勝: <span id="currentStreak">0</span></p>
                     <p>所持チップ: <span id="playerChips">1000</span></p>
+                </div>
+
+                <div id="resultOverlay" class="result-overlay">
+                    <div class="result-content">
+                        <h2 id="resultMessage">結果</h2>
+                        <button id="retryButton" class="game-control">もう一度遊ぶ</button>
+                    </div>
                 </div>
             </div>
 
@@ -143,6 +152,7 @@
                             <ul class="key-list">
                                 <li>ヒット: <span>H</span></li>
                                 <li>スタンド: <span>S</span></li>
+                                <li>ダブルダウン: <span>D</span></li>
                                 <li>設定: <span>Esc</span></li>
                             </ul>
                         </div>
