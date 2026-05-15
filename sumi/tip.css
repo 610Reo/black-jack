@@ -195,11 +195,9 @@
 }
 
 .side-action {
-    position: absolute;
-    left: -24px;
+    position: fixed; /* ★修正：絶対位置から画面固定に変更 */
+    left: 10px;
     bottom: 20px;
-    top: auto;
-    transform: none;
     width: 50px;
     height: 140px;
     display: flex;
@@ -211,10 +209,39 @@
     color: #333;
     font-size: 1.8rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    cursor: pointer; /* ★追加 */
+    z-index: 2000; /* ★追加 */
 }
 
+/* 戦績パネル（スライド式修正版） */
+.stats-panel {
+    box-sizing: border-box; 
+    position: fixed; /* ★修正：絶対位置から画面固定に変更 */
+    left: -250px; /* ★修正：完全に隠れる位置へ */
+    bottom: 20px;
+    
+    width: 200px; 
+    height: 300px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    border: 1px solid #ddd;
+    
+    /* ★修正：display: none ではなく visibility と opacity でアニメーションさせる */
+    transition: all 0.3s ease-in-out;
+    z-index: 1999;
+    visibility: hidden;
+    opacity: 0;
+}
 
-/* タブ */
+.stats-panel.open {
+    visibility: visible;
+    opacity: 1;
+    left: 70px; /* ★ボタンの右側へ表示 */
+}
+
+/* タブ（以前のコードに残っていたもの。不要なら削除してOK） */
 .stats-tab {
     bottom: 60px;
     left: 100px;
@@ -228,31 +255,4 @@
     border-radius: 10px;
     cursor: pointer;
     z-index: 100;
-}
-
-/* ============ 戦績パネル（スライド式） ============ */
-
-.stats-panel {
-    box-sizing: border-box; 
-    
-    position: absolute;
-    left: -250px;
-    bottom: 20px;
-    
-    width: 200px; 
-    height: 300px;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-    border: 1px solid #ddd;
-    
-    transition: left 0.3s ease-in-out;
-    z-index: 100;
-    display: none;
-}
-
-.stats-panel.open {
-    display: block;
-    left: 60px;
 }
