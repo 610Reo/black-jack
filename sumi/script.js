@@ -31,6 +31,7 @@ const playerNameDisplay = document.getElementById('playerName');
 const dealerCardsArea = document.querySelector('.dealer-cards');
 const playerCardsArea = document.querySelector('.player-cards');
 const playerChipsDisplay = document.getElementById('playerChips');
+const currentBetPill = document.getElementById('currentBetPill');
 
 // タブ・キー設定・統計
 const tabButtons = document.querySelectorAll('.tab-btn');
@@ -98,6 +99,7 @@ function updateBetDisplay(value) {
     betSlider.value = selectedBet;
     betSpinner.value = selectedBet;
     currentBetAmount.textContent = selectedBet;
+    if (currentBetPill) currentBetPill.textContent = selectedBet;
 }
 
 function updateChipsDisplay() {
@@ -166,10 +168,47 @@ function finishGame(result) {
     }
     if (result === "LOSE") {
         loseCount++;
-        playerChips -= selectedBet;
+        if (playerChips - selectedBet < 0) {
+            playerChips = 0;
+        } else {
+            playerChips -= selectedBet;
+        }
     }
     updateStats();
     updateChipsDisplay();
+}
+
+function dealerAction() {
+    dealerHiddenRevealed = true;
+    
+    // ディーラーの思考ロジック
+    let dTotal = calculateTotal(dealerHand);
+    while (dTotal < 17) {
+        dealerHand.push(randomCard());
+        dTotal = calculateTotal(dealerHand);
+    }
+    updateHandDisplay();
+    return dTotal;
+}
+
+function determineWinner(dealerTotal, playerTotal) {
+    setTimeout(() => {
+        let result = "";
+        if (dealerTotal > 21) {
+            alert(`ディーラーがバースト（${dealerTotal}）。あなたの勝ちです！`);
+            result = "WIN";
+        } else if (playerTotal > dealerTotal) {
+            alert(`あなたの勝ち！ (${playerTotal} vs ${dealerTotal})`);
+            result = "WIN";
+        } else if (playerTotal < dealerTotal) {
+            alert(`あなたの負けです。 (${playerTotal} vs ${dealerTotal})`);
+            result = "LOSE";
+        } else {
+            alert(`引き分け (Push) です。 (Score: ${playerTotal})`);
+            result = "DRAW";
+        }
+        finishGame(result);
+    }, 300);
 }
 
 
@@ -185,7 +224,7 @@ startButton.addEventListener('click', () => {
 confirmButton.addEventListener('click', () => {
     bettingScreen.classList.remove('active');
     gameScreen.classList.add('active');
-    startGame(betSpinner.value);
+    startGame(selectedBet);
 });
 
 // --- 掛け金操作 ---
@@ -266,34 +305,10 @@ hitButton.addEventListener('click', function() {
 standButton.addEventListener('click', function() {
     if (isGameOver) return;
     
-    dealerHiddenRevealed = true;
+    const dealerTotal = dealerAction();
+    const playerTotal = calculateTotal(playerHand);
     
-    // ディーラーの思考ロジック
-    let dTotal = calculateTotal(dealerHand);
-    while (dTotal < 17) {
-        dealerHand.push(randomCard());
-        dTotal = calculateTotal(dealerHand);
-    }
-    updateHandDisplay();
-
-    const pTotal = calculateTotal(playerHand);
-    
-    setTimeout(() => {
-        let result = "DRAW";
-        if (dTotal > 21) {
-            alert(`ディーラーがバースト（${dTotal}）。あなたの勝ちです！`);
-            result = "WIN";
-        } else if (pTotal > dTotal) {
-            alert(`あなたの勝ち！ (${pTotal} vs ${dTotal})`);
-            result = "WIN";
-        } else if (pTotal < dTotal) {
-            alert(`あなたの負けです。 (${pTotal} vs ${dTotal})`);
-            result = "LOSE";
-        } else {
-            alert(`引き分け (Push) です。 (Score: ${pTotal})`);
-        }
-        finishGame(result);
-    }, 300);
+    determineWinner(dealerTotal, playerTotal);
 });
 
 // 戦績パネルの開閉
