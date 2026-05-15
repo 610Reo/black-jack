@@ -29,8 +29,10 @@ const playerNameDisplay = document.getElementById('playerName');
 const resultMessage = document.getElementById('resultMessage');
 const dealerCardsArea = document.querySelector('.dealer-cards');
 const playerCardsArea = document.querySelector('.player-cards');
+
 const playerChipsDisplay = document.getElementById('playerChips');
 const currentBetPill = document.getElementById('currentBetPill');
+
 
 const tabButtons = document.querySelectorAll('.tab-btn');
 const tabContents = document.querySelectorAll('.tab-content');
@@ -44,10 +46,6 @@ let dealerHand = [];
 let dealerHiddenRevealed = false;
 let isGameOver = false;
 let isAssigningKey = null;
-
-let selectedBet = 100;
-let playerChips = 1000;
-
 let lastConfirmedBet = 100; // 確定した時の賭け金を保存する変数
 
 let keyBinds = {
@@ -92,6 +90,7 @@ function createCardElement(card, isHidden = false) {
 
 // ============ 4. UI更新ロジック ============
 function updateBetDisplay(value) {
+
     selectedBet = Number(value);
     betSlider.value = selectedBet;
     betSpinner.value = selectedBet;
@@ -101,6 +100,11 @@ function updateBetDisplay(value) {
 
 function updateChipsDisplay() {
     playerChipsDisplay.textContent = playerChips;
+
+    betSlider.value = value;
+    betSpinner.value = value;
+    currentBetAmount.textContent = value;
+
 }
 
 function updateStats() {
@@ -114,8 +118,7 @@ function updateStats() {
 function updateHandDisplay() {
     playerCardsArea.innerHTML = '';
     playerHand.forEach(card => playerCardsArea.appendChild(createCardElement(card)));
-    const playerTotal = calculateTotal(playerHand);
-    playerScoreDisplay.textContent = playerTotal > 21 ? 'バースト' : playerTotal;
+    playerScoreDisplay.textContent = calculateTotal(playerHand);
 
     dealerCardsArea.innerHTML = '';
     dealerHand.forEach((card, index) => {
@@ -164,6 +167,7 @@ function startGame(betAmount) {
 function finishGame(result, message) {
     isGameOver = true;
     totalGames++;
+
 
     if (result === "WIN") {
         winCount++;
@@ -218,6 +222,7 @@ function determineWinner(dealerTotal, playerTotal) {
 
 // ============ 6. イベントリスナーの登録 ============
 
+
     if (result === "WIN") winCount++;
     if (result === "LOSE") loseCount++;
     updateStats();
@@ -226,7 +231,6 @@ function determineWinner(dealerTotal, playerTotal) {
         resultMessage.textContent = message;
         resultOverlay.classList.add('active');
     }, 500);
-}
 
 
 // ============ 6. イベントリスナー ============
@@ -239,9 +243,9 @@ confirmButton.addEventListener('click', () => {
     lastConfirmedBet = Number(betSpinner.value); // 確定時の額を保存
     bettingScreen.classList.remove('active');
     gameScreen.classList.add('active');
-<<<<<<< HEAD
+
     startGame(selectedBet);
-=======
+
     startGame(lastConfirmedBet);
 });
 
@@ -257,7 +261,7 @@ retryButton.addEventListener('click', () => {
     dealerCardsArea.innerHTML = '';
     playerScoreDisplay.textContent = '--';
     dealerScoreDisplay.textContent = '--';
->>>>>>> 171a0e421451a546893bf4d1e78c7feb3dd53e40
+
 });
 
 [betSlider, betSpinner].forEach(el => {
@@ -320,25 +324,17 @@ hitButton.addEventListener('click', function() {
     if (isGameOver) return;
     playerHand.push(randomCard());
     updateHandDisplay();
-
-
-    if (calculateTotal(playerHand) > 21) {
-        finishGame("LOSE");
-    }
-
     if (calculateTotal(playerHand) > 21) finishGame("LOSE", "バースト！あなたの負けです。");
-
 });
 
 standButton.addEventListener('click', function() {
     if (isGameOver) return;
-<<<<<<< HEAD
     
     const dealerTotal = dealerAction();
     const playerTotal = calculateTotal(playerHand);
     
     determineWinner(dealerTotal, playerTotal);
-=======
+
     dealerHiddenRevealed = true;
     let dTotal = calculateTotal(dealerHand);
     while (dTotal < 17) {
@@ -356,7 +352,7 @@ standButton.addEventListener('click', function() {
         else { message = "引き分けです。"; }
         finishGame(result, message);
     }, 300);
->>>>>>> 171a0e421451a546893bf4d1e78c7feb3dd53e40
+
 });
 
 doubleDownButton.addEventListener('click', function() {
@@ -384,5 +380,4 @@ window.addEventListener('load', () => {
     updateBetDisplay(100);
     updateStats();
     updateKeyDisplay();
-    updateChipsDisplay();
 });
