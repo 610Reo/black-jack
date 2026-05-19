@@ -30,6 +30,10 @@ const resultMessage = document.getElementById('resultMessage');
 const dealerCardsArea = document.querySelector('.dealer-cards');
 const playerCardsArea = document.querySelector('.player-cards');
 
+const playerChipsDisplay = document.getElementById('playerChips');
+const currentBetPill = document.getElementById('currentBetPill');
+
+
 const tabButtons = document.querySelectorAll('.tab-btn');
 const tabContents = document.querySelectorAll('.tab-content');
 const keySpans = document.querySelectorAll('.key-list span');
@@ -55,6 +59,8 @@ const cardPool = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
 let totalGames = 0;
 let winCount = 0;
 let loseCount = 0;
+let playerChips = 1000; // プレイヤーの初期チップ数
+let selectedBet = 100; // 選択された賭け金
 
 // ============ 3. ヘルパー関数 ============
 function randomCard() {
@@ -86,6 +92,17 @@ function createCardElement(card, isHidden = false) {
 
 // ============ 4. UI更新ロジック ============
 function updateBetDisplay(value) {
+    
+    selectedBet = Number(value);
+    betSlider.value = selectedBet;
+    betSpinner.value = selectedBet;
+    currentBetAmount.textContent = selectedBet;
+    if (currentBetPill) currentBetPill.textContent = selectedBet;
+}
+
+function updateChipsDisplay() {
+    playerChipsDisplay.textContent = playerChips;
+
     betSlider.value = value;
     betSpinner.value = value;
     currentBetAmount.textContent = value;
@@ -97,6 +114,7 @@ function updateStats() {
     document.getElementById("winCount").textContent = winCount;
     document.getElementById("loseCount").textContent = loseCount;
     document.getElementById("winRate").textContent = rate;
+    document.getElementById("playerChips").textContent = playerChips;
 }
 
 function updateHandDisplay() {
@@ -151,15 +169,29 @@ function startGame(betAmount) {
 function finishGame(result, message) {
     isGameOver = true;
     totalGames++;
-    if (result === "WIN") winCount++;
-    if (result === "LOSE") loseCount++;
-    updateStats();
 
-    setTimeout(() => {
-        resultMessage.textContent = message;
-        resultOverlay.classList.add('active');
-    }, 500);
+    if (result === "WIN") {
+        winCount++;
+        playerChips += selectedBet;
+    }
+    if (result === "LOSE") {
+        loseCount++;
+        if (playerChips - selectedBet < 0) {
+            playerChips = 0;
+        } else {
+            playerChips -= selectedBet;
+        }
+    }
+    updateStats();
+    
+    // 結果画面を表示
+    resultMessage.textContent = message;
+    resultOverlay.classList.add('active');
 }
+    
+
+    
+
 
 // ============ 6. イベントリスナー ============
 startButton.addEventListener('click', () => {
@@ -171,6 +203,9 @@ confirmButton.addEventListener('click', () => {
     lastConfirmedBet = Number(betSpinner.value); // 確定時の額を保存
     bettingScreen.classList.remove('active');
     gameScreen.classList.add('active');
+
+    startGame(selectedBet);
+    
     startGame(lastConfirmedBet);
 });
 
