@@ -91,9 +91,53 @@ function createCardElement(card, isHidden = false) {
 }
 
 // ============ 4. UI更新ロジック ============
+function setBetMax() {
+    const minBet = Number(betSlider.min);
+    let maxBet = Math.max(playerChips, minBet);
+    // 所持チップが1000を超える場合は上限を1000にする
+    maxBet = Math.min(maxBet, 1000);
+
+    betSlider.max = maxBet;
+    betSpinner.max = maxBet;
+    updateSliderLabels();
+
+    if (selectedBet > maxBet) {
+        updateBetDisplay(maxBet);
+    }
+}
+
+function updateSliderLabels() {
+    const minBet = Number(betSlider.min);
+    const maxBet = Number(betSlider.max);
+    const labelsContainer = document.querySelector('.slider-labels');
+    if (!labelsContainer) return;
+
+    labelsContainer.innerHTML = '';
+    const labels = [minBet];
+
+    for (let value = 100; value < maxBet; value += 100) {
+        if (value > minBet) labels.push(value);
+    }
+
+    if (labels[labels.length - 1] !== maxBet) {
+        labels.push(maxBet);
+    }
+
+    labels.forEach(value => {
+        const span = document.createElement('span');
+        span.textContent = value;
+        labelsContainer.appendChild(span);
+    });
+}
+
+function clampBet(value) {
+    const minBet = Number(betSlider.min);
+    const maxBet = Number(betSlider.max);
+    return Math.max(minBet, Math.min(maxBet, Number(value)));
+}
+
 function updateBetDisplay(value) {
-    
-    selectedBet = Number(value);
+    selectedBet = clampBet(value);
     betSlider.value = selectedBet;
     betSpinner.value = selectedBet;
     currentBetAmount.textContent = selectedBet;
@@ -102,10 +146,6 @@ function updateBetDisplay(value) {
 
 function updateChipsDisplay() {
     playerChipsDisplay.textContent = playerChips;
-
-    betSlider.value = value;
-    betSpinner.value = value;
-    currentBetAmount.textContent = value;
 }
 
 function updateStats() {
@@ -183,6 +223,7 @@ function finishGame(result, message) {
         }
     }
     updateStats();
+    setBetMax();
     
     // 結果画面を表示
     resultMessage.textContent = message;
@@ -329,6 +370,7 @@ if (statsTab) {
 }
 
 window.addEventListener('load', () => {
+    setBetMax();
     updateBetDisplay(100);
     updateStats();
     updateKeyDisplay();
