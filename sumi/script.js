@@ -93,9 +93,15 @@ function createCardElement(card, isHidden = false) {
 // ============ 4. UI更新ロジック ============
 function setBetMax() {
     const minBet = Number(betSlider.min);
-    let maxBet = Math.max(playerChips, minBet);
-    // 所持チップが1000を超える場合は上限を1000にする
-    maxBet = Math.min(maxBet, 1000);
+    let maxBet;
+    if (playerChips <= 1000) {
+        // 所持チップが1000以下なら所持チップを上限（ただし最小値は保証）
+        maxBet = Math.max(Math.min(playerChips, 1000), minBet);
+    } else {
+        // 所持チップが1000を超える場合は、上から2桁目で四捨五入した値を上限とする
+        const rounded = roundToTwoSignificantDigits(playerChips);
+        maxBet = Math.max(rounded, minBet);
+    }
 
     betSlider.max = maxBet;
     betSpinner.max = maxBet;
@@ -104,6 +110,13 @@ function setBetMax() {
     if (selectedBet > maxBet) {
         updateBetDisplay(maxBet);
     }
+}
+
+function roundToTwoSignificantDigits(n) {
+    if (n <= 0) return n;
+    const digits = Math.floor(Math.log10(n)) + 1;
+    const factor = Math.pow(10, Math.max(digits - 2, 0));
+    return Math.round(n / factor) * factor;
 }
 
 function updateSliderLabels() {
@@ -115,8 +128,17 @@ function updateSliderLabels() {
     labelsContainer.innerHTML = '';
     const labels = [minBet];
 
-    for (let value = 100; value < maxBet; value += 100) {
-        if (value > minBet) labels.push(value);
+    if (maxBet <= 1000) {
+        // 100の倍数で区切る（上限を超える分は表示しない）
+        for (let value = 100; value < maxBet; value += 100) {
+            if (value > minBet) labels.push(value);
+        }
+    } else {
+        // 上から2桁目で四捨五入した上限を10分の1にした値で区切る
+        const step = Math.round(maxBet / 10);
+        for (let value = step; value < maxBet; value += step) {
+            if (value > minBet) labels.push(value);
+        }
     }
 
     if (labels[labels.length - 1] !== maxBet) {
