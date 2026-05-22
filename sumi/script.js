@@ -33,7 +33,6 @@ const playerCardsArea = document.querySelector('.player-cards');
 const playerChipsDisplay = document.getElementById('playerChips');
 const currentBetPill = document.getElementById('currentBetPill');
 
-
 const tabButtons = document.querySelectorAll('.tab-btn');
 const tabContents = document.querySelectorAll('.tab-content');
 const keySpans = document.querySelectorAll('.key-list span');
@@ -46,21 +45,23 @@ let dealerHand = [];
 let dealerHiddenRevealed = false;
 let isGameOver = false;
 let isAssigningKey = null;
-let lastConfirmedBet = 100; // 確定した時の賭け金を保存する変数
+let lastConfirmedBet = 100;
 
 let keyBinds = {
     hit: 'h',
     stand: 's',
     double: 'd',
-    settings: 'Escape'
+    settings: 'Escape',
+    stats: 'v' 
 };
 
 const cardPool = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
 let totalGames = 0;
 let winCount = 0;
 let loseCount = 0;
-let playerChips = 1000; // プレイヤーの初期チップ数
-let selectedBet = 100; // 選択された賭け金
+let drawCount = 0; // ★引き分けカウント用の変数を追加
+let playerChips = 1000;
+let selectedBet = 100;
 
 // ============ 3. ヘルパー関数 ============
 function randomCard() {
@@ -95,10 +96,8 @@ function setBetMax() {
     const minBet = Number(betSlider.min);
     let maxBet;
     if (playerChips <= 1000) {
-        // 所持チップが1000以下なら所持チップを上限（ただし最小値は保証）
         maxBet = Math.max(Math.min(playerChips, 1000), minBet);
     } else {
-        // 所持チップが1000を超える場合は、上から2桁目で四捨五入した値を上限とする
         const rounded = roundToTwoSignificantDigits(playerChips);
         maxBet = Math.max(rounded, minBet);
     }
@@ -129,19 +128,17 @@ function updateSliderLabels() {
     const labels = [minBet];
 
     if (maxBet <= 1000) {
-        // 100の倍数で区切る（上限を超える分は表示しない）
         for (let value = 100; value < maxBet; value += 100) {
             if (value > minBet) labels.push(value);
         }
     } else {
-        // 上から2桁目で四捨五入した上限を10分の1にした値で区切る
         const step = Math.round(maxBet / 10);
         for (let value = step; value < maxBet; value += step) {
             if (value > minBet) labels.push(value);
         }
     }
 
-    if (labels[labels.length - 1] !== maxBet) {
+    if (labels[labels.length - 1] !== maxBet && maxBet > minBet) {
         labels.push(maxBet);
     }
 
@@ -166,17 +163,17 @@ function updateBetDisplay(value) {
     if (currentBetPill) currentBetPill.textContent = selectedBet;
 }
 
-function updateChipsDisplay() {
-    playerChipsDisplay.textContent = playerChips;
-}
-
 function updateStats() {
-    const rate = totalGames === 0 ? 0 : Math.floor((winCount / totalGames) * 100);
+    // 勝率の計算：勝ち数 ÷ (全試合 - 引き分け) ※純粋な勝敗がついた試合での確率
+    const denominator = totalGames - drawCount;
+    const rate = denominator === 0 ? 0 : Math.floor((winCount / denominator) * 100);
+    
     document.getElementById("totalGames").textContent = totalGames;
     document.getElementById("winCount").textContent = winCount;
     document.getElementById("loseCount").textContent = loseCount;
+    document.getElementById("drawCount").textContent = drawCount; // ★引き分け数を画面に反映
     document.getElementById("winRate").textContent = rate;
-    document.getElementById("playerChips").textContent = playerChips;
+    if (playerChipsDisplay) playerChipsDisplay.textContent = playerChips;
 }
 
 function updateHandDisplay() {
@@ -196,7 +193,7 @@ function updateHandDisplay() {
         dealerScoreDisplay.textContent = cardValue(dealerHand[0]);
     }
 
-    if (playerHand.length === 2 && !isGameOver) {
+    if (playerHand.length === 2 && !isGameOver && playerChips >= selectedBet * 2) {
         doubleDownButton.disabled = false;
         doubleDownButton.style.opacity = "1";
     } else {
@@ -212,11 +209,12 @@ function updateKeyDisplay() {
         if (actionText.includes('スタンド')) span.textContent = keyBinds.stand.toUpperCase();
         if (actionText.includes('ダブルダウン')) span.textContent = keyBinds.double.toUpperCase();
         if (actionText.includes('設定')) span.textContent = keyBinds.settings === 'Escape' ? 'ESC' : keyBinds.settings.toUpperCase();
+        if (actionText.includes('戦績')) span.textContent = keyBinds.stats.toUpperCase(); 
     });
 }
 
 // ============ 5. ゲーム進行ロジック ============
-function startGame(betAmount) {
+function startGame() {
     isGameOver = false;
     dealerHiddenRevealed = false;
     playerNameDisplay.textContent = 'プレイヤー';
@@ -235,26 +233,19 @@ function finishGame(result, message) {
     if (result === "WIN") {
         winCount++;
         playerChips += selectedBet;
-    }
-    if (result === "LOSE") {
+    } else if (result === "LOSE") {
         loseCount++;
-        if (playerChips - selectedBet < 0) {
-            playerChips = 0;
-        } else {
-            playerChips -= selectedBet;
-        }
+        playerChips = Math.max(0, playerChips - selectedBet);
+    } else if (result === "DRAW") {
+        drawCount++; // ★引き分け時にカウントを加算
     }
+    
     updateStats();
     setBetMax();
     
-    // 結果画面を表示
     resultMessage.textContent = message;
     resultOverlay.classList.add('active');
 }
-    
-
-    
-
 
 // ============ 6. イベントリスナー ============
 startButton.addEventListener('click', () => {
@@ -263,13 +254,13 @@ startButton.addEventListener('click', () => {
 });
 
 confirmButton.addEventListener('click', () => {
-    lastConfirmedBet = Number(betSpinner.value); // 確定時の額を保存
+    lastConfirmedBet = Number(betSpinner.value);
+    updateBetDisplay(lastConfirmedBet);
+    
     bettingScreen.classList.remove('active');
     gameScreen.classList.add('active');
 
-    startGame(selectedBet);
-    
-    startGame(lastConfirmedBet);
+    startGame();
 });
 
 retryButton.addEventListener('click', () => {
@@ -277,7 +268,6 @@ retryButton.addEventListener('click', () => {
     gameScreen.classList.remove('active');
     bettingScreen.classList.add('active');
     
-    // 【重要】ダブルダウンで増えた額をリセットし、最後に確定した時の額に戻す
     updateBetDisplay(lastConfirmedBet);
     
     playerCardsArea.innerHTML = '';
@@ -320,6 +310,7 @@ keySpans.forEach(span => {
         else if (actionText.includes('スタンド')) isAssigningKey = 'stand';
         else if (actionText.includes('ダブルダウン')) isAssigningKey = 'double';
         else if (actionText.includes('設定')) isAssigningKey = 'settings';
+        else if (actionText.includes('戦績')) isAssigningKey = 'stats'; 
     });
 });
 
@@ -335,6 +326,17 @@ window.addEventListener('keydown', function(e) {
         settingsOverlay.classList.toggle('active');
         return;
     }
+    
+    if (!settingsOverlay.classList.contains('active') && gameScreen.classList.contains('active')) {
+        if (e.key.toLowerCase() === keyBinds.stats.toLowerCase()) {
+            if (statsTab && statsPanel) {
+                statsTab.classList.toggle('open');
+                statsPanel.classList.toggle('open');
+            }
+            return;
+        }
+    }
+
     if (!settingsOverlay.classList.contains('active') && !isGameOver) {
         if (e.key.toLowerCase() === keyBinds.hit.toLowerCase()) hitButton.click();
         if (e.key.toLowerCase() === keyBinds.stand.toLowerCase()) standButton.click();
@@ -359,6 +361,7 @@ standButton.addEventListener('click', function() {
     }
     updateHandDisplay();
     const pTotal = calculateTotal(playerHand);
+    
     setTimeout(() => {
         let result = "DRAW";
         let message = "";
@@ -367,13 +370,12 @@ standButton.addEventListener('click', function() {
         else if (pTotal < dTotal) { result = "LOSE"; message = "あなたの負けです。"; }
         else { message = "引き分けです。"; }
         finishGame(result, message);
-    }, 300);
+    }, 1000); 
 });
 
 doubleDownButton.addEventListener('click', function() {
     if (isGameOver || playerHand.length !== 2) return;
     
-    // 表示上の賭け金を2倍にする（実際の勝負用）
     let currentBet = Number(betSpinner.value);
     updateBetDisplay(currentBet * 2);
 
@@ -387,8 +389,11 @@ doubleDownButton.addEventListener('click', function() {
     }
 });
 
-if (statsTab) {
-    statsTab.addEventListener('click', () => statsPanel?.classList.toggle('open'));
+if (statsTab && statsPanel) {
+    statsTab.addEventListener('click', () => {
+        statsTab.classList.toggle('open');   
+        statsPanel.classList.toggle('open'); 
+    });
 }
 
 window.addEventListener('load', () => {
