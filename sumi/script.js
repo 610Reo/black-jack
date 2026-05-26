@@ -59,7 +59,7 @@ const cardPool = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
 let totalGames = 0;
 let winCount = 0;
 let loseCount = 0;
-let drawCount = 0; // ★引き分けカウント用の変数を追加
+let drawCount = 0; 
 let playerChips = 1000;
 let selectedBet = 100;
 
@@ -164,14 +164,13 @@ function updateBetDisplay(value) {
 }
 
 function updateStats() {
-    // 勝率の計算：勝ち数 ÷ (全試合 - 引き分け) ※純粋な勝敗がついた試合での確率
     const denominator = totalGames - drawCount;
     const rate = denominator === 0 ? 0 : Math.floor((winCount / denominator) * 100);
     
     document.getElementById("totalGames").textContent = totalGames;
     document.getElementById("winCount").textContent = winCount;
     document.getElementById("loseCount").textContent = loseCount;
-    document.getElementById("drawCount").textContent = drawCount; // ★引き分け数を画面に反映
+    document.getElementById("drawCount").textContent = drawCount; 
     document.getElementById("winRate").textContent = rate;
     if (playerChipsDisplay) playerChipsDisplay.textContent = playerChips;
 }
@@ -237,7 +236,7 @@ function finishGame(result, message) {
         loseCount++;
         playerChips = Math.max(0, playerChips - selectedBet);
     } else if (result === "DRAW") {
-        drawCount++; // ★引き分け時にカウントを加算
+        drawCount++; 
     }
     
     updateStats();
@@ -281,6 +280,7 @@ retryButton.addEventListener('click', () => {
 });
 
 settingsButton.addEventListener('click', () => settingsOverlay.classList.add('active'));
+
 closeSettings.addEventListener('click', () => {
     settingsOverlay.classList.remove('active');
     isAssigningKey = null;
@@ -322,19 +322,18 @@ window.addEventListener('keydown', function(e) {
         updateKeyDisplay();
         return;
     }
+
     if (e.key === keyBinds.settings) {
         settingsOverlay.classList.toggle('active');
         return;
     }
     
-    if (!settingsOverlay.classList.contains('active') && gameScreen.classList.contains('active')) {
-        if (e.key.toLowerCase() === keyBinds.stats.toLowerCase()) {
-            if (statsTab && statsPanel) {
-                statsTab.classList.toggle('open');
-                statsPanel.classList.toggle('open');
-            }
-            return;
+    if (e.key.toLowerCase() === keyBinds.stats.toLowerCase()) {
+        if (statsTab && statsPanel) {
+            statsTab.classList.toggle('open');
+            statsPanel.classList.toggle('open');
         }
+        return;
     }
 
     if (!settingsOverlay.classList.contains('active') && !isGameOver) {
@@ -348,7 +347,12 @@ hitButton.addEventListener('click', function() {
     if (isGameOver) return;
     playerHand.push(randomCard());
     updateHandDisplay();
-    if (calculateTotal(playerHand) > 21) finishGame("LOSE", "バースト！あなたの負けです。");
+    if (calculateTotal(playerHand) > 21) {
+        isGameOver = true; 
+        setTimeout(() => {
+            finishGame("LOSE", "バースト！あなたの負けです。");
+        }, 1000);
+    }
 });
 
 standButton.addEventListener('click', function() {
@@ -383,7 +387,10 @@ doubleDownButton.addEventListener('click', function() {
     updateHandDisplay();
 
     if (calculateTotal(playerHand) > 21) {
-        finishGame("LOSE", "バースト！ダブルダウン失敗...");
+        isGameOver = true; 
+        setTimeout(() => {
+            finishGame("LOSE", "バースト！ダブルダウン失敗...");
+        }, 1000);
     } else {
         standButton.click();
     }

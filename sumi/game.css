@@ -270,7 +270,7 @@ body {
     position: absolute;
     top: 36px;
     right: 36px;
-    z-index: 5;
+    z-index: 100; /* 結果画面(50)より高く設定 */
     padding: 10px 16px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -289,13 +289,11 @@ body {
 }
 
 /* ============ 戦績ボタン（左下固定） ＆ 戦績パネルスタイル ============ */
-
-/* 戦績開閉ボタン（ボードの左下端に完全固定） */
 #statsTab {
     position: absolute;
     bottom: 36px;
     left: 36px;
-    z-index: 105; /* パネルより前面に配置 */
+    z-index: 105; 
     padding: 10px 16px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -305,13 +303,10 @@ body {
     letter-spacing: 0.02em;
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-
-    /* 矢印自体の回転アニメーション設定 */
     transition: background 0.2s ease, transform 0.2s ease, rotate 0.3s ease;
 }
 
@@ -320,17 +315,15 @@ body {
     transform: translateY(-1px);
 }
 
-/* ボタン自体、またはパネルが開いている時、矢印（文字）を180度滑らかに回転 */
 #statsTab.open {
     transform: translateY(0); 
     rotate: 180deg;
 }
 
-/* 戦績パネル本体（固定ボタンのすぐ右側からフワッと開く） */
 #statsPanel {
     position: absolute;
     bottom: 36px;
-    left: 110px; /* ボタン（→）のすぐ右隣に配置 */
+    left: 110px; 
     width: 300px;
     height: auto;
     max-height: 400px;
@@ -340,19 +333,16 @@ body {
     padding: 20px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    
-    /* 初期状態は非表示（透明化 ＆ クリック不可） */
     opacity: 0;
     visibility: hidden;
     transform: translateX(-10px);
     transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
 }
 
-/* パネルが開いた（JSで .open クラスがついた）とき */
 #statsPanel.open {
     opacity: 1;
     visibility: visible;
-    transform: translateX(0); /* 右側へフワッと出現 */
+    transform: translateX(0);
 }
 
 /* ============ 設定画面スタイル ============ */
@@ -498,6 +488,9 @@ body {
     align-items: center;
     z-index: 50;
     border-radius: 8px;
+
+    /* 修正ポイント: オーバーレイ自体はクリックをスルーさせる */
+    pointer-events: none;
 }
 
 .result-overlay.active {
@@ -510,6 +503,9 @@ body {
     border-radius: 12px;
     text-align: center;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+
+    /* 修正ポイント: 中央のコンテンツ(メッセージやボタン)はクリック可能にする */
+    pointer-events: auto;
 }
 
 #resultMessage {
