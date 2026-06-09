@@ -239,11 +239,50 @@ function finishGame(result, message) {
         drawCount++; 
     }
     
+    // 【対策1】勝敗が決まり、チップ処理が終わったら、ダブルダウンで2倍になったselectedBetを元の確定額に戻す
+    updateBetDisplay(lastConfirmedBet);
+
     updateStats();
     setBetMax();
     
     resultMessage.textContent = message;
     resultOverlay.classList.add('active');
+}
+
+// 【対策2】ディーラーが17以上になるまで、時間差（0.7秒）で1枚ずつカードを引く演出用関数
+function dealerDrawTurn() {
+    let dTotal = calculateTotal(dealerHand);
+    
+    if (dTotal < 17) {
+        // 17未満ならカードを1枚追加し、画面を更新して0.7秒後に自分自身を再度呼び出す
+        dealerHand.push(randomCard());
+        updateHandDisplay();
+        setTimeout(dealerDrawTurn, 700);
+    } else {
+        // 17以上（またはバースト）になったら、最終的な勝敗判定をしてゲーム終了
+        const pTotal = calculateTotal(playerHand);
+        
+        let result = "DRAW";
+        let message = "";
+        
+        if (dTotal > 21) { 
+            result = "WIN"; 
+            message = "ディーラーがバースト！勝ちです。"; 
+        } else if (pTotal > dTotal) { 
+            result = "WIN"; 
+            message = "あなたの勝ち！"; 
+        } else if (pTotal < dTotal) { 
+            result = "LOSE"; 
+            message = "あなたの負けです。"; 
+        } else { 
+            message = "引き分けです。"; 
+        }
+        
+        // 最後のカードが引かれてから、結果画面が出るまで少しだけ余韻（0.5秒）を持たせる
+        setTimeout(() => {
+            finishGame(result, message);
+        }, 500);
+    }
 }
 
 // ============ 6. イベントリスナー ============
@@ -357,24 +396,12 @@ hitButton.addEventListener('click', function() {
 
 standButton.addEventListener('click', function() {
     if (isGameOver) return;
+    isGameOver = true; // 連打による二重呼び出しを防止
     dealerHiddenRevealed = true;
-    let dTotal = calculateTotal(dealerHand);
-    while (dTotal < 17) {
-        dealerHand.push(randomCard());
-        dTotal = calculateTotal(dealerHand);
-    }
     updateHandDisplay();
-    const pTotal = calculateTotal(playerHand);
     
-    setTimeout(() => {
-        let result = "DRAW";
-        let message = "";
-        if (dTotal > 21) { result = "WIN"; message = "ディーラーがバースト！勝ちです。"; }
-        else if (pTotal > dTotal) { result = "WIN"; message = "あなたの勝ち！"; }
-        else if (pTotal < dTotal) { result = "LOSE"; message = "あなたの負けです。"; }
-        else { message = "引き分けです。"; }
-        finishGame(result, message);
-    }, 1000); 
+    // 【対策2】一瞬でwhileを回すのをやめ、0.5秒後に時間差ドロー関数（dealerDrawTurn）をスタート
+    setTimeout(dealerDrawTurn, 500);
 });
 
 doubleDownButton.addEventListener('click', function() {
@@ -392,7 +419,11 @@ doubleDownButton.addEventListener('click', function() {
             finishGame("LOSE", "バースト！ダブルダウン失敗...");
         }, 1000);
     } else {
-        standButton.click();
+        // バーストしていなければ、ヒットボタンのように「もう一度判断」をさせず強制的にスタンド扱いにする
+        isGameOver = true;
+        dealerHiddenRevealed = true;
+        updateHandDisplay();
+        setTimeout(dealerDrawTurn, 500);
     }
 });
 
