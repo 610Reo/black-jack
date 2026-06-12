@@ -46,6 +46,7 @@ let dealerHiddenRevealed = false;
 let isGameOver = false;
 let isAssigningKey = null;
 let lastConfirmedBet = 100;
+let deck = [];
 
 let keyBinds = {
     hit: 'h',
@@ -55,7 +56,31 @@ let keyBinds = {
     stats: 'v' 
 };
 
-const cardPool = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
+const suits = ['♠', '♥', '♦', '♣'];
+const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+const cardPool = [];
+const randomCardPool = [];
+
+for (const suit of suits) {
+    for (const rank of ranks) {
+        cardPool.push({
+            suit,
+            rank,
+            value: rank === 'A' ? 11 : (['J', 'Q', 'K'].includes(rank) ? 10 : Number(rank)),
+            display: `${suit}${rank}`
+        });
+    }
+}
+
+const jokerTypes = [
+    { suit: 'color', rank: 'JOKER', value: 0, display: '🃏JOKER' },
+    { suit: 'black', rank: 'JOKER', value: 0, display: '🖤JOKER' }
+];
+
+for (const joker of jokerTypes) {
+    cardPool.push(joker);
+}
+
 let totalGames = 0;
 let winCount = 0;
 let loseCount = 0;
@@ -64,11 +89,32 @@ let playerChips = 1000;
 let selectedBet = 100;
 
 // ============ 3. ヘルパー関数 ============
+function shuffleDeck() {
+    randomCardPool.length = 0;
+
+    const availableCards = cardPool.map(card => ({ ...card }));
+
+    for (let i = availableCards.length; i > 0; i--) {
+        const randomIndex = Math.floor(Math.random() * availableCards.length);
+        const [selectedCard] = availableCards.splice(randomIndex, 1);
+        randomCardPool.push(selectedCard);
+    }
+
+    return randomCardPool;
+}
+
 function randomCard() {
-    return cardPool[Math.floor(Math.random() * cardPool.length)];
+    if (randomCardPool.length === 0) {
+        shuffleDeck();
+    }
+    return randomCardPool.pop();
 }
 
 function cardValue(card) {
+    if (typeof card === 'object' && card !== null) {
+        return card.value ?? 0;
+    }
+
     if (card === 'J' || card === 'Q' || card === 'K') return 10;
     if (card === 'A') return 11;
     return Number(card);
@@ -76,7 +122,7 @@ function cardValue(card) {
 
 function calculateTotal(hand) {
     let total = hand.reduce((sum, card) => sum + cardValue(card), 0);
-    let aceCount = hand.filter(card => card === 'A').length;
+    let aceCount = hand.filter(card => (typeof card === 'object' && card !== null ? card.rank : card) === 'A').length;
     while (total > 21 && aceCount > 0) {
         total -= 10;
         aceCount -= 1;
@@ -87,7 +133,7 @@ function calculateTotal(hand) {
 function createCardElement(card, isHidden = false) {
     const cardDiv = document.createElement('div');
     cardDiv.className = isHidden ? 'card card-back' : 'card card-front';
-    cardDiv.textContent = isHidden ? '?' : card;
+    cardDiv.textContent = isHidden ? '?' : (typeof card === 'object' && card !== null ? card.display : card);
     return cardDiv;
 }
 
@@ -218,7 +264,9 @@ function startGame() {
     dealerHiddenRevealed = false;
     playerNameDisplay.textContent = 'プレイヤー';
     resultOverlay.classList.remove('active');
-    
+
+    shuffleDeck();
+
     playerHand = [randomCard(), randomCard()];
     dealerHand = [randomCard(), randomCard()]; 
     
