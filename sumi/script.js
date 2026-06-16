@@ -55,7 +55,33 @@ let keyBinds = {
     stats: 'v' 
 };
 
-const cardPool = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
+// --- デッキ構築用の設定 ---
+const suits = ['♠', '♥', '♦', '♣'];
+const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+const cardPool = [];        // マスターデッキ（54枚の雛形）
+const randomCardPool = [];  // 実際にゲームで使用する山札（シャッフル後）
+
+// 52枚の通常カードを生成
+for (const suit of suits) {
+    for (const rank of ranks) {
+        cardPool.push({
+            suit,
+            rank,
+            value: rank === 'A' ? 11 : (['J', 'Q', 'K'].includes(rank) ? 10 : Number(rank)),
+            display: `${suit}${rank}`
+        });
+    }
+}
+
+// ジョーカー2枚を追加 (値は0)
+const jokerTypes = [
+    { suit: 'color', rank: 'JOKER', value: 0, display: '🃏JOKER' },
+    { suit: 'black', rank: 'JOKER', value: 0, display: '🖤JOKER' }
+];
+for (const joker of jokerTypes) {
+    cardPool.push(joker);
+}
+
 let totalGames = 0;
 let winCount = 0;
 let loseCount = 0;
@@ -64,19 +90,40 @@ let playerChips = 1000;
 let selectedBet = 100;
 
 // ============ 3. ヘルパー関数 ============
+// 山札をシャッフルする関数
+function shuffleDeck() {
+    randomCardPool.length = 0; // 一度空にする
+    const availableCards = cardPool.map(card => ({ ...card })); // コピーを作成
+
+    for (let i = availableCards.length; i > 0; i--) {
+        const randomIndex = Math.floor(Math.random() * availableCards.length);
+        const [selectedCard] = availableCards.splice(randomIndex, 1);
+        randomCardPool.push(selectedCard);
+    }
+    return randomCardPool;
+}
+
+// 山札からカードを1枚引く関数（無くなったら自動で再シャッフル）
 function randomCard() {
-    return cardPool[Math.floor(Math.random() * cardPool.length)];
+    if (randomCardPool.length === 0) {
+        shuffleDeck();
+    }
+    return randomCardPool.pop();
 }
 
+// カードの数値を返す関数
 function cardValue(card) {
-    if (card === 'J' || card === 'Q' || card === 'K') return 10;
-    if (card === 'A') return 11;
-    return Number(card);
+    if (typeof card === 'object' && card !== null) {
+        return card.value ?? 0;
+    }
+    return 0; // 万が一のためのセーフティ
 }
 
+// 手札の合計値を計算する関数（Aのケアを含む）
 function calculateTotal(hand) {
     let total = hand.reduce((sum, card) => sum + cardValue(card), 0);
-    let aceCount = hand.filter(card => card === 'A').length;
+    let aceCount = hand.filter(card => card.rank === 'A').length;
+    
     while (total > 21 && aceCount > 0) {
         total -= 10;
         aceCount -= 1;
@@ -84,10 +131,11 @@ function calculateTotal(hand) {
     return total;
 }
 
+// カードのHTML要素を生成する関数
 function createCardElement(card, isHidden = false) {
     const cardDiv = document.createElement('div');
     cardDiv.className = isHidden ? 'card card-back' : 'card card-front';
-    cardDiv.textContent = isHidden ? '?' : card;
+    cardDiv.textContent = isHidden ? '?' : card.display;
     return cardDiv;
 }
 
@@ -219,6 +267,9 @@ function startGame() {
     playerNameDisplay.textContent = 'プレイヤー';
     resultOverlay.classList.remove('active');
     
+    // 毎ゲーム開始時に新しく山札を構築・シャッフルする
+    shuffleDeck();
+
     playerHand = [randomCard(), randomCard()];
     dealerHand = [randomCard(), randomCard()]; 
     
@@ -239,7 +290,7 @@ function finishGame(result, message) {
         drawCount++; 
     }
     
-    // 【対策1】勝敗が決まり、チップ処理が終わったら、ダブルダウンで2倍になったselectedBetを元の確定額に戻す
+    // 勝敗が決まり、チップ処理が終わったら、ダブルダウンで2倍になったselectedBetを元の確定額に戻す
     updateBetDisplay(lastConfirmedBet);
 
     updateStats();
@@ -249,12 +300,12 @@ function finishGame(result, message) {
     resultOverlay.classList.add('active');
 }
 
-// 【対策2】ディーラーが17以上になるまで、時間差（0.7秒）で1枚ずつカードを引く演出用関数
+// ディーラーが17以上になるまで、時間差（0.7秒）で1枚ずつカードを引く演出用関数
 function dealerDrawTurn() {
     let dTotal = calculateTotal(dealerHand);
     
     if (dTotal < 17) {
-        // 17未満ならカードを1枚追加し、画面を更新して0.7秒後に自分自身を再度呼び出す
+        // 17未満なら山札からカードを1枚追加し、画面を更新して0.7秒後に自分自身を再度呼び出す
         dealerHand.push(randomCard());
         updateHandDisplay();
         setTimeout(dealerDrawTurn, 700);
@@ -400,7 +451,7 @@ standButton.addEventListener('click', function() {
     dealerHiddenRevealed = true;
     updateHandDisplay();
     
-    // 【対策2】一瞬でwhileを回すのをやめ、0.5秒後に時間差ドロー関数（dealerDrawTurn）をスタート
+    // 0.5秒後に時間差ドロー関数（dealerDrawTurn）をスタート
     setTimeout(dealerDrawTurn, 500);
 });
 
