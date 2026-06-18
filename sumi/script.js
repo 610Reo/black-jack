@@ -46,7 +46,6 @@ let dealerHiddenRevealed = false;
 let isGameOver = false;
 let isAssigningKey = null;
 let lastConfirmedBet = 100;
-let deck = [];
 
 let keyBinds = {
     hit: 'h',
@@ -56,11 +55,13 @@ let keyBinds = {
     stats: 'v' 
 };
 
+// --- デッキ構築用の設定 ---
 const suits = ['♠', '♥', '♦', '♣'];
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-const cardPool = [];
-const randomCardPool = [];
+const cardPool = [];        // マスターデッキ（54枚の雛形）
+const randomCardPool = [];  // 実際にゲームで使用する山札（シャッフル後）
 
+// 52枚の通常カードを生成
 for (const suit of suits) {
     for (const rank of ranks) {
         cardPool.push({
@@ -72,11 +73,11 @@ for (const suit of suits) {
     }
 }
 
+// ジョーカー2枚を追加 (値は0)
 const jokerTypes = [
     { suit: 'color', rank: 'JOKER', value: 0, display: '🃏JOKER' },
     { suit: 'black', rank: 'JOKER', value: 0, display: '🖤JOKER' }
 ];
-
 for (const joker of jokerTypes) {
     cardPool.push(joker);
 }
@@ -89,20 +90,20 @@ let playerChips = 1000;
 let selectedBet = 100;
 
 // ============ 3. ヘルパー関数 ============
+// 山札をシャッフルする関数
 function shuffleDeck() {
-    randomCardPool.length = 0;
-
-    const availableCards = cardPool.map(card => ({ ...card }));
+    randomCardPool.length = 0; // 一度空にする
+    const availableCards = cardPool.map(card => ({ ...card })); // コピーを作成
 
     for (let i = availableCards.length; i > 0; i--) {
         const randomIndex = Math.floor(Math.random() * availableCards.length);
         const [selectedCard] = availableCards.splice(randomIndex, 1);
         randomCardPool.push(selectedCard);
     }
-
     return randomCardPool;
 }
 
+// 山札からカードを1枚引く関数（無くなったら自動で再シャッフル）
 function randomCard() {
     if (randomCardPool.length === 0) {
         shuffleDeck();
@@ -110,19 +111,19 @@ function randomCard() {
     return randomCardPool.pop();
 }
 
+// カードの数値を返す関数
 function cardValue(card) {
     if (typeof card === 'object' && card !== null) {
         return card.value ?? 0;
     }
-
-    if (card === 'J' || card === 'Q' || card === 'K') return 10;
-    if (card === 'A') return 11;
-    return Number(card);
+    return 0; // 万が一のためのセーフティ
 }
 
+// 手札の合計値を計算する関数（Aのケアを含む）
 function calculateTotal(hand) {
     let total = hand.reduce((sum, card) => sum + cardValue(card), 0);
-    let aceCount = hand.filter(card => (typeof card === 'object' && card !== null ? card.rank : card) === 'A').length;
+    let aceCount = hand.filter(card => card.rank === 'A').length;
+    
     while (total > 21 && aceCount > 0) {
         total -= 10;
         aceCount -= 1;
@@ -130,10 +131,11 @@ function calculateTotal(hand) {
     return total;
 }
 
+// カードのHTML要素を生成する関数
 function createCardElement(card, isHidden = false) {
     const cardDiv = document.createElement('div');
     cardDiv.className = isHidden ? 'card card-back' : 'card card-front';
-    cardDiv.textContent = isHidden ? '?' : (typeof card === 'object' && card !== null ? card.display : card);
+    cardDiv.textContent = isHidden ? '?' : card.display;
     return cardDiv;
 }
 
@@ -264,7 +266,8 @@ function startGame() {
     dealerHiddenRevealed = false;
     playerNameDisplay.textContent = 'プレイヤー';
     resultOverlay.classList.remove('active');
-
+    
+    // 毎ゲーム開始時に新しく山札を構築・シャッフルする
     shuffleDeck();
 
     playerHand = [randomCard(), randomCard()];
@@ -287,11 +290,50 @@ function finishGame(result, message) {
         drawCount++; 
     }
     
+    // 勝敗が決まり、チップ処理が終わったら、ダブルダウンで2倍になったselectedBetを元の確定額に戻す
+    updateBetDisplay(lastConfirmedBet);
+
     updateStats();
     setBetMax();
     
     resultMessage.textContent = message;
     resultOverlay.classList.add('active');
+}
+
+// ディーラーが17以上になるまで、時間差（0.7秒）で1枚ずつカードを引く演出用関数
+function dealerDrawTurn() {
+    let dTotal = calculateTotal(dealerHand);
+    
+    if (dTotal < 17) {
+        // 17未満なら山札からカードを1枚追加し、画面を更新して0.7秒後に自分自身を再度呼び出す
+        dealerHand.push(randomCard());
+        updateHandDisplay();
+        setTimeout(dealerDrawTurn, 700);
+    } else {
+        // 17以上（またはバースト）になったら、最終的な勝敗判定をしてゲーム終了
+        const pTotal = calculateTotal(playerHand);
+        
+        let result = "DRAW";
+        let message = "";
+        
+        if (dTotal > 21) { 
+            result = "WIN"; 
+            message = "ディーラーがバースト！勝ちです。"; 
+        } else if (pTotal > dTotal) { 
+            result = "WIN"; 
+            message = "あなたの勝ち！"; 
+        } else if (pTotal < dTotal) { 
+            result = "LOSE"; 
+            message = "あなたの負けです。"; 
+        } else { 
+            message = "引き分けです。"; 
+        }
+        
+        // 最後のカードが引かれてから、結果画面が出るまで少しだけ余韻（0.5秒）を持たせる
+        setTimeout(() => {
+            finishGame(result, message);
+        }, 500);
+    }
 }
 
 // ============ 6. イベントリスナー ============
@@ -405,24 +447,12 @@ hitButton.addEventListener('click', function() {
 
 standButton.addEventListener('click', function() {
     if (isGameOver) return;
+    isGameOver = true; // 連打による二重呼び出しを防止
     dealerHiddenRevealed = true;
-    let dTotal = calculateTotal(dealerHand);
-    while (dTotal < 17) {
-        dealerHand.push(randomCard());
-        dTotal = calculateTotal(dealerHand);
-    }
     updateHandDisplay();
-    const pTotal = calculateTotal(playerHand);
     
-    setTimeout(() => {
-        let result = "DRAW";
-        let message = "";
-        if (dTotal > 21) { result = "WIN"; message = "ディーラーがバースト！勝ちです。"; }
-        else if (pTotal > dTotal) { result = "WIN"; message = "あなたの勝ち！"; }
-        else if (pTotal < dTotal) { result = "LOSE"; message = "あなたの負けです。"; }
-        else { message = "引き分けです。"; }
-        finishGame(result, message);
-    }, 1000); 
+    // 0.5秒後に時間差ドロー関数（dealerDrawTurn）をスタート
+    setTimeout(dealerDrawTurn, 500);
 });
 
 doubleDownButton.addEventListener('click', function() {
@@ -440,7 +470,11 @@ doubleDownButton.addEventListener('click', function() {
             finishGame("LOSE", "バースト！ダブルダウン失敗...");
         }, 1000);
     } else {
-        standButton.click();
+        // バーストしていなければ、ヒットボタンのように「もう一度判断」をさせず強制的にスタンド扱いにする
+        isGameOver = true;
+        dealerHiddenRevealed = true;
+        updateHandDisplay();
+        setTimeout(dealerDrawTurn, 500);
     }
 });
 
