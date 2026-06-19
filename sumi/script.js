@@ -169,35 +169,82 @@ function animateValue(obj, start, end, duration, suffix = "") {
 }
 
 // ============ 4. UI更新・同期ロジック ============
+function setBetMax() {
+    const minBet = Number(betSlider.min || 10);
+    let maxBet;
+    if (playerChips <= 1000) {
+        maxBet = Math.max(Math.min(playerChips, 1000), minBet);
+    } else {
+        const rounded = roundToTwoSignificantDigits(playerChips);
+        maxBet = Math.max(rounded, minBet);
+    }
+
+    betSlider.max = maxBet;
+    betSpinner.max = maxBet;
+    updateSliderLabels();
+
+    if (selectedBet > maxBet) {
+        updateBetDisplay(maxBet);
+    }
+}
+
+function roundToTwoSignificantDigits(n) {
+    if (n <= 0) return n;
+    const digits = Math.floor(Math.log10(n)) + 1;
+    const factor = Math.pow(10, Math.max(digits - 2, 0));
+    return Math.round(n / factor) * factor;
+}
+
+function updateSliderLabels() {
+    const minBet = Number(betSlider.min || 10);
+    const maxBet = Number(betSlider.max || 1000);
+    const labelsContainer = document.querySelector('.slider-labels');
+    if (!labelsContainer) return;
+
+    labelsContainer.innerHTML = '';
+    const labels = [minBet];
+
+    if (maxBet <= 1000) {
+        for (let value = 100; value < maxBet; value += 100) {
+            if (value > minBet) labels.push(value);
+        }
+    } else {
+        const step = Math.round(maxBet / 10);
+        for (let value = step; value < maxBet; value += step) {
+            if (value > minBet) labels.push(value);
+        }
+    }
+
+    if (labels[labels.length - 1] !== maxBet && maxBet > minBet) {
+        labels.push(maxBet);
+    }
+
+    labels.forEach(value => {
+        const span = document.createElement('span');
+        span.textContent = value;
+        labelsContainer.appendChild(span);
+    });
+}
+
 function clampBet(value) {
-    let val = Math.max(10, Math.min(playerChips, Number(value)));
-    return Math.round(val / 10) * 10;
+    const minBet = Number(betSlider.min || 10);
+    const maxBet = Number(betSlider.max || playerChips);
+    let val = Math.max(minBet, Math.min(maxBet, Number(value)));
+    return Math.round(val / 10) * 10; // 10刻みに丸める
 }
 
 function updateBetDisplay(value) {
     selectedBet = clampBet(value);
     
-    if (betSlider) {
-        betSlider.max = playerChips;
-        betSlider.value = selectedBet;
-    }
-    if (betSpinner) {
-        betSpinner.max = playerChips;
-        betSpinner.value = selectedBet;
-    }
-    // 薄赤枠内の数値をリアルタイム更新
+    if (betSlider) betSlider.value = selectedBet;
+    if (betSpinner) betSpinner.value = selectedBet;
+    
+    // 薄赤枠内の数値をリアルタイム更新（HTML側に¥マークがあるため数値のみ代入）
     if (currentBetAmount) {
-        currentBetAmount.textContent = `¥${selectedBet}`;
+        currentBetAmount.textContent = selectedBet;
     }
     if (currentBetPill) {
         currentBetPill.textContent = selectedBet;
-    }
-}
-
-function updateSliderLabels() {
-    const maxLabel = document.getElementById('maxLabelDisplay');
-    if (maxLabel) {
-        maxLabel.textContent = `Max: ¥${playerChips}`;
     }
 }
 
@@ -239,7 +286,8 @@ function updateHandDisplay() {
         dealerScoreDisplay.textContent = cardValue(dealerHand[0]);
     }
 
-    if (playerHand.length === 2 && !isGameOver && playerChips >= selectedBet * 2) {
+    // ダブルダウン可能条件：最初の2枚、かつ追加の賭け金（現在のselectedBetと同額）を持っていること
+    if (playerHand.length === 2 && !isGameOver && playerChips >= selectedBet) {
         doubleDownButton.disabled = false;
         doubleDownButton.style.opacity = "1";
     } else {
@@ -275,7 +323,7 @@ function startGame() {
     updateHandDisplay();
 }
 
-// 配当処理関数（特殊ルール用に第3引数 isPureWin を追加）
+// 配当処理関数
 function finishGame(result, message, isPureWin = false) {
     isGameOver = true;
     totalGames++;
@@ -284,56 +332,54 @@ function finishGame(result, message, isPureWin = false) {
     if (result === "WIN") {
         winCount++;
         lifetimeWins++; 
-        playerChips += selectedBet;
-        
-        totalChipsEarned += selectedBet;
-        if (selectedBet > maxChipsEarnedSingleGame) {
-            maxChipsEarnedSingleGame = selectedBet;
-        }
-    } else if (result === "LOSE") {
-        loseCount++;
-        lifetimeLoses++; 
-        playerChips = Math.max(0, playerChips - selectedBet);
-    } else if (result === "DRAW") {
-        drawCount++; 
-        lifetimeDraws++; 
         
         // --- 同じ模様（スーツ）ボーナスの判定 ---
         const firstSuit = playerHand[0].suit;
-        // すべてのカードの模様が一致しているか
         const isSameSuit = playerHand.every(card => card.suit === firstSuit);
-        // ダブルダウン（プルダウン）ボタンを押した直後かどうか
-        // （押した場合はselectedBetが一時的にlastConfirmedBetの2倍になっている）
         const isDoubleDown = selectedBet > lastConfirmedBet;
 
+        let payoutChips = 0; 
+
         if (isSameSuit && isPureWin) {
-            // 純粋な数字の強さで勝ち、かつ同じ模様の場合の特別配当
             const cardCount = playerHand.length;
             let multiplier = 1;
 
             if (isDoubleDown) {
-                // ② プルダウンして勝った場合
                 if (cardCount === 2) multiplier = 6;
             } else {
-                // ① ヒットして勝った場合
                 if (cardCount === 2) multiplier = 2.5;
                 else if (cardCount === 3) multiplier = 5;
                 else if (cardCount === 4) multiplier = 20;
                 else if (cardCount >= 5) multiplier = 100;
             }
 
-            // ボーナスチップの追加（元々の確定掛け金をベースに計算）
-            playerChips += Math.floor(lastConfirmedBet * multiplier);
+            const profit = Math.floor(lastConfirmedBet * multiplier);
+            payoutChips = selectedBet + profit;
             message += ` (同じ模様ボーナス！ ${multiplier}倍配当)`;
+            
+            totalChipsEarned += profit;
+            if (profit > maxChipsEarnedSingleGame) {
+                maxChipsEarnedSingleGame = profit;
+            }
         } else {
-            // 通常の勝利、またはJOKER能力による勝利（特殊ルール適用外）
-            playerChips += selectedBet * 2;
+            payoutChips = selectedBet * 2;
+            
+            totalChipsEarned += selectedBet; 
+            if (selectedBet > maxChipsEarnedSingleGame) {
+                maxChipsEarnedSingleGame = selectedBet;
+            }
         }
+
+        playerChips += payoutChips;
 
     } else if (result === "LOSE") {
         loseCount++;
+        lifetimeLoses++; 
+        if (playerChips < 0) playerChips = 0;
+
     } else if (result === "DRAW") {
         drawCount++; 
+        lifetimeDraws++; 
         playerChips += selectedBet;
     }
     
@@ -342,9 +388,12 @@ function finishGame(result, message, isPureWin = false) {
     localStorage.setItem('bj_lifetimeLoses', lifetimeLoses);
     localStorage.setItem('bj_lifetimeDraws', lifetimeDraws);
 
+    // 1ゲーム終わったら、確定額ベースに戻して最大値を再計算
     updateBetDisplay(lastConfirmedBet);
     updateStats();
+    setBetMax();
     
+    // 【破産チェック】
     if (playerChips <= 0) {
         const denominator = totalGames - drawCount;
         const rate = denominator === 0 ? 0 : Math.floor((winCount / denominator) * 100);
@@ -387,28 +436,25 @@ function dealerDrawTurn() {
         const pTotal = calculateTotal(playerHand);
         let result = "DRAW";
         let message = "";
-        let isPureWin = false; // 純粋な数字の強さ（またはディーラーバースト）で勝ったかどうかのフラグ
+        let isPureWin = false; 
         
         if (dTotal > 21) { 
             result = "WIN"; 
             message = "ディーラーがバースト！勝ちです。"; 
-            isPureWin = true; // ディーラーのバーストは純粋な数字勝ち扱い
+            isPureWin = true; 
         } else {
-            // プレイヤーが手札にJOKERを持っているかチェック
             const hasJoker = playerHand.some(card => card.rank === 'JOKER');
-            // ディーラーの数字がプレイヤーより「0〜3大きい」という条件
             const scoreDiff = dTotal - pTotal;
             const isJokerWinCondition = (scoreDiff >= 0 && scoreDiff <= 3);
 
             if (hasJoker && isJokerWinCondition) {
-                // JOKER持参かつ条件を満たしていれば大逆転勝利
                 result = "WIN";
                 message = `JOKERの効果発動！あなたの勝ちです！`;
-                isPureWin = false; // JOKERによる逆転勝利のため特殊ボーナス対象外
+                isPureWin = false; 
             } else if (pTotal > dTotal) { 
                 result = "WIN"; 
                 message = "あなたの勝ち！"; 
-                isPureWin = true; // 純粋な数字での勝利
+                isPureWin = true; 
             } else if (pTotal < dTotal) { 
                 result = "LOSE"; 
                 message = "あなたの負けです。"; 
@@ -427,8 +473,8 @@ function dealerDrawTurn() {
 startButton.addEventListener('click', () => {
     startScreen.classList.remove('active');
     bettingScreen.classList.add('active');
+    setBetMax();
     updateBetDisplay(lastConfirmedBet);
-    updateSliderLabels();
 });
 
 confirmButton.addEventListener('click', () => {
@@ -437,7 +483,7 @@ confirmButton.addEventListener('click', () => {
     
     bettingScreen.classList.remove('active');
     gameScreen.classList.add('active');
-    playerChips -= selectedBet;
+    playerChips -= selectedBet; // 初回ベット分の引き去り
     startGame();
 });
 
@@ -446,8 +492,8 @@ retryButton.addEventListener('click', () => {
     gameScreen.classList.remove('active');
     bettingScreen.classList.add('active');
     
+    setBetMax();
     updateBetDisplay(lastConfirmedBet);
-    updateSliderLabels();
     
     playerCardsArea.innerHTML = '';
     dealerCardsArea.innerHTML = '';
@@ -472,8 +518,8 @@ if (restartGameButton) {
         maxChipsEarnedSingleGame = 0;
         
         updateStats();
+        setBetMax();
         updateBetDisplay(100);
-        updateSliderLabels();
         
         playerCardsArea.innerHTML = '';
         dealerCardsArea.innerHTML = '';
@@ -576,7 +622,10 @@ standButton.addEventListener('click', function() {
 
 doubleDownButton.addEventListener('click', function() {
     if (isGameOver || playerHand.length !== 2) return;
+    
+    playerChips -= selectedBet; 
     updateBetDisplay(selectedBet * 2);
+    
     playerHand.push(randomCard());
     updateHandDisplay();
 
@@ -617,8 +666,8 @@ statsTabButtons.forEach(btn => {
 });
 
 window.addEventListener('load', () => {
+    setBetMax();
     updateBetDisplay(100);
-    updateSliderLabels();
     updateStats();
     updateKeyDisplay();
 });
