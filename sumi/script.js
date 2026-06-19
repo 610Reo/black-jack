@@ -66,7 +66,8 @@ let keyBinds = {
     stats: 'v' 
 };
 
-const suits = ['♠', '♥', '♦', '♣'];
+// --- デッキ構築用の設定 ---
+const suits = ['♠','♥','♦','♣'];
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 const cardPool = [];        
 const randomCardPool = [];  
@@ -146,7 +147,9 @@ function calculateTotal(hand) {
 function createCardElement(card, isHidden = false) {
     const cardDiv = document.createElement('div');
     cardDiv.className = isHidden ? 'card card-back' : 'card card-front';
-    cardDiv.textContent = isHidden ? '?' : card.display;
+    if (!isHidden) {
+        cardDiv.textContent = card.display;
+    }
     return cardDiv;
 }
 
@@ -272,7 +275,8 @@ function startGame() {
     updateHandDisplay();
 }
 
-function finishGame(result, message) {
+// 配当処理関数（特殊ルール用に第3引数 isPureWin を追加）
+function finishGame(result, message, isPureWin = false) {
     isGameOver = true;
     totalGames++;
     lifetimeGames++;
@@ -293,6 +297,44 @@ function finishGame(result, message) {
     } else if (result === "DRAW") {
         drawCount++; 
         lifetimeDraws++; 
+        
+        // --- 同じ模様（スーツ）ボーナスの判定 ---
+        const firstSuit = playerHand[0].suit;
+        // すべてのカードの模様が一致しているか
+        const isSameSuit = playerHand.every(card => card.suit === firstSuit);
+        // ダブルダウン（プルダウン）ボタンを押した直後かどうか
+        // （押した場合はselectedBetが一時的にlastConfirmedBetの2倍になっている）
+        const isDoubleDown = selectedBet > lastConfirmedBet;
+
+        if (isSameSuit && isPureWin) {
+            // 純粋な数字の強さで勝ち、かつ同じ模様の場合の特別配当
+            const cardCount = playerHand.length;
+            let multiplier = 1;
+
+            if (isDoubleDown) {
+                // ② プルダウンして勝った場合
+                if (cardCount === 2) multiplier = 6;
+            } else {
+                // ① ヒットして勝った場合
+                if (cardCount === 2) multiplier = 2.5;
+                else if (cardCount === 3) multiplier = 5;
+                else if (cardCount === 4) multiplier = 20;
+                else if (cardCount >= 5) multiplier = 100;
+            }
+
+            // ボーナスチップの追加（元々の確定掛け金をベースに計算）
+            playerChips += Math.floor(lastConfirmedBet * multiplier);
+            message += ` (同じ模様ボーナス！ ${multiplier}倍配当)`;
+        } else {
+            // 通常の勝利、またはJOKER能力による勝利（特殊ルール適用外）
+            playerChips += selectedBet * 2;
+        }
+
+    } else if (result === "LOSE") {
+        loseCount++;
+    } else if (result === "DRAW") {
+        drawCount++; 
+        playerChips += selectedBet;
     }
     
     localStorage.setItem('bj_lifetimeGames', lifetimeGames);
@@ -345,22 +387,38 @@ function dealerDrawTurn() {
         const pTotal = calculateTotal(playerHand);
         let result = "DRAW";
         let message = "";
+        let isPureWin = false; // 純粋な数字の強さ（またはディーラーバースト）で勝ったかどうかのフラグ
         
         if (dTotal > 21) { 
             result = "WIN"; 
             message = "ディーラーがバースト！勝ちです。"; 
-        } else if (pTotal > dTotal) { 
-            result = "WIN"; 
-            message = "あなたの勝ち！"; 
-        } else if (pTotal < dTotal) { 
-            result = "LOSE"; 
-            message = "あなたの負けです。"; 
-        } else { 
-            message = "引き分けです。"; 
+            isPureWin = true; // ディーラーのバーストは純粋な数字勝ち扱い
+        } else {
+            // プレイヤーが手札にJOKERを持っているかチェック
+            const hasJoker = playerHand.some(card => card.rank === 'JOKER');
+            // ディーラーの数字がプレイヤーより「0〜3大きい」という条件
+            const scoreDiff = dTotal - pTotal;
+            const isJokerWinCondition = (scoreDiff >= 0 && scoreDiff <= 3);
+
+            if (hasJoker && isJokerWinCondition) {
+                // JOKER持参かつ条件を満たしていれば大逆転勝利
+                result = "WIN";
+                message = `JOKERの効果発動！あなたの勝ちです！`;
+                isPureWin = false; // JOKERによる逆転勝利のため特殊ボーナス対象外
+            } else if (pTotal > dTotal) { 
+                result = "WIN"; 
+                message = "あなたの勝ち！"; 
+                isPureWin = true; // 純粋な数字での勝利
+            } else if (pTotal < dTotal) { 
+                result = "LOSE"; 
+                message = "あなたの負けです。"; 
+            } else { 
+                message = "引き分けです。"; 
+            }
         }
         
         setTimeout(() => {
-            finishGame(result, message);
+            finishGame(result, message, isPureWin);
         }, 500);
     }
 }
@@ -379,7 +437,7 @@ confirmButton.addEventListener('click', () => {
     
     bettingScreen.classList.remove('active');
     gameScreen.classList.add('active');
-
+    playerChips -= selectedBet;
     startGame();
 });
 
@@ -503,7 +561,7 @@ hitButton.addEventListener('click', function() {
     if (calculateTotal(playerHand) > 21) {
         isGameOver = true; 
         setTimeout(() => {
-            finishGame("LOSE", "バースト！あなたの負けです。");
+            finishGame("LOSE", "バースト！あなたの負けです。", false);
         }, 1000);
     }
 });
@@ -525,7 +583,7 @@ doubleDownButton.addEventListener('click', function() {
     if (calculateTotal(playerHand) > 21) {
         isGameOver = true; 
         setTimeout(() => {
-            finishGame("LOSE", "バースト！ダブルダウン失敗...");
+            finishGame("LOSE", "バースト！ダブルダウン失敗...", false);
         }, 1000);
     } else {
         isGameOver = true;

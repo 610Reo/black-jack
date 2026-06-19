@@ -135,8 +135,10 @@ body {
 }
 
 .card.card-back {
-    background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
-    color: #666;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)),
+        url('画像/back.jpg') center/cover no-repeat;
+    color: transparent;
     border: 2px solid #999;
 }
 
@@ -144,15 +146,14 @@ body {
     width: 82.5px;
     height: 120px;
     border-radius: 6px;
-    background: linear-gradient(145deg, #f5f5f5 0%, #ececec 100%);
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)),
+        url('画像/back.jpg') center/cover no-repeat;
+    background-size: contain;
     border: 2px solid #999;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #666;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
