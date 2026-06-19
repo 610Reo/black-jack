@@ -271,7 +271,7 @@ body {
     position: absolute;
     top: 36px;
     right: 36px;
-    z-index: 100; /* 結果画面(50)より高く設定 */
+    z-index: 100; 
     padding: 10px 16px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -289,7 +289,7 @@ body {
     transform: translateY(-1px);
 }
 
-/* ============ 戦績ボタン（左下固定） ＆ 戦績パネルスタイル ============ */
+/* ============ 戦績ボタン＆戦績パネルスタイル ============ */
 #statsTab {
     position: absolute;
     bottom: 36px;
@@ -489,8 +489,6 @@ body {
     align-items: center;
     z-index: 50;
     border-radius: 8px;
-
-    /* 修正ポイント: オーバーレイ自体はクリックをスルーさせる */
     pointer-events: none;
 }
 
@@ -504,8 +502,6 @@ body {
     border-radius: 12px;
     text-align: center;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-
-    /* 修正ポイント: 中央のコンテンツ(メッセージやボタン)はクリック可能にする */
     pointer-events: auto;
 }
 
@@ -523,3 +519,146 @@ body {
         height: 800px;
     }
 }
+
+/* 🎰 パチンコ・ラッシュ風 漆黒＆極太ゴールドテーマ */
+.pachinko-theme {
+    background: rgba(10, 10, 13, 0.92) !important; /* 漆黒背景 */
+    backdrop-filter: blur(8px);
+}
+
+.pachinko-result-content {
+    background: radial-gradient(circle, #22222a 0%, #0d0d11 100%);
+    border: 4px solid #b89742; /* 金のフレーム */
+    box-shadow: 0 0 30px rgba(184, 151, 66, 0.4), inset 0 0 20px rgba(0,0,0,0.8);
+    padding: 35px 50px;
+    border-radius: 16px;
+    text-align: center;
+    width: 500px;
+    pointer-events: auto;
+    animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 液晶上部のタイトル */
+.pachinko-title {
+    font-size: 42px;
+    font-weight: 900;
+    color: #e5c158;
+    text-shadow: 0 0 10px rgba(229, 193, 88, 0.6), 0 4px 0 #7c611c;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+    font-family: 'Impact', 'Arial Black', sans-serif;
+}
+
+.pachinko-stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* 各行のレイアウト */
+.pachinko-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding-bottom: 8px;
+}
+
+.pachinko-row.mini {
+    padding: 2px 5px;
+}
+
+.pachinko-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #aaa;
+    letter-spacing: 1px;
+}
+
+/* パチンコの液晶フォント風（無骨な等幅・太字） */
+.font-digital {
+    font-family: 'Impact', 'Courier New', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow: 0 0 4px rgba(255,255,255,0.3);
+}
+
+/* 配色指定 */
+.text-blue { color: #38b6ff; text-shadow: 0 0 8px rgba(56,182,255,0.5); }
+.text-red  { color: #ff4a4a; text-shadow: 0 0 8px rgba(255,74,74,0.5); }
+
+.pachinko-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #b89742 50%, transparent 100%);
+    margin: 10px 0;
+}
+
+/* メイン報酬（チップ獲得数）を目立たせる */
+.pachinko-row.main-reward {
+    border-bottom: none;
+    padding: 10px 0;
+}
+
+.gold-text {
+    color: #ffd700 !important;
+    text-shadow: 0 0 12px rgba(255,215,0,0.6), 2px 2px 2px #000;
+}
+
+.silver-text {
+    color: #e0e0e0 !important;
+    text-shadow: 0 0 8px rgba(224,224,224,0.5), 1px 1px 2px #000;
+}
+
+.big-number {
+    font-size: 46px !important;
+}
+
+/* 🎰 明滅して主張するボタン演出 */
+.pachinko-btn {
+    margin-top: 35px;
+    width: 100%;
+    padding: 16px;
+    border: 3px solid #ff4a4a;
+    background: linear-gradient(180deg, #ff2a2a 0%, #990000 100%);
+    color: #fff;
+    font-size: 20px;
+    font-weight: 900;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(255,74,74,0.6), inset 0 2px 4px rgba(255,255,255,0.4);
+    letter-spacing: 1px;
+    text-shadow: 0 2px 2px rgba(0,0,0,0.6);
+    animation: pulseGlow 1.5s infinite ease-in-out;
+    transition: transform 0.1s;
+}
+
+.pachinko-btn:hover {
+    filter: brightness(1.2);
+}
+
+.pachinko-btn:active {
+    transform: scale(0.97);
+}
+
+/* アニメーションキーフレーム */
+@keyframes scaleUp {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 10px rgba(255,74,74,0.5); }
+    50% { box-shadow: 0 0 25px rgba(255,74,74,0.9), 0 0 10px rgba(255,215,0,0.4); }
+    100% { box-shadow: 0 0 10px rgba(255,74,74,0.5); }
+}
+
+/* ============ 戦績の％表示のズレ修正 ============ */
+#statsContentTotal p {
+    position: relative;
+}
+
+#statsContentTotal p span#total-winrate {
+    right: 65px !important;
+}
+

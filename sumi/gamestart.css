@@ -1,8 +1,29 @@
 /* ============ ゲームスタート画面 ============ */
 #startScreen {
     background: linear-gradient(135deg, #228B22 0%, #006400 100%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
 }
 
+#startScreen.active {
+    display: flex;
+}
+
+/* 謎の「0」が表示されるバグを防ぐため、疑似要素を完全に初期化します */
+#startScreen::before,
+#startScreen::after {
+    content: none !important;
+    display: none !important;
+}
+
+/* スタートボタンのスタイル */
 .start-button {
     width: 250px;
     height: 80px;
