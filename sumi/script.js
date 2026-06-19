@@ -135,7 +135,9 @@ function calculateTotal(hand) {
 function createCardElement(card, isHidden = false) {
     const cardDiv = document.createElement('div');
     cardDiv.className = isHidden ? 'card card-back' : 'card card-front';
-    cardDiv.textContent = isHidden ? '?' : card.display;
+    if (!isHidden) {
+        cardDiv.textContent = card.display;
+    }
     return cardDiv;
 }
 
