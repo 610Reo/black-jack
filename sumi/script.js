@@ -56,7 +56,7 @@ let keyBinds = {
 };
 
 // --- デッキ構築用の設定 ---
-const suits = ['♠', '♥', '♦', '♣'];
+const suits = ['♠','♥','♦','♣'];
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 const cardPool = [];        // マスターデッキ（54枚の雛形）
 const randomCardPool = [];  // 実際にゲームで使用する山札（シャッフル後）
@@ -315,14 +315,14 @@ function finishGame(result, message, isPureWin = false) {
             message += ` (同じ模様ボーナス！ ${multiplier}倍配当)`;
         } else {
             // 通常の勝利、またはJOKER能力による勝利（特殊ルール適用外）
-            playerChips += selectedBet;
+            playerChips += selectedBet * 2;
         }
 
     } else if (result === "LOSE") {
         loseCount++;
-        playerChips = Math.max(0, playerChips - selectedBet);
     } else if (result === "DRAW") {
         drawCount++; 
+        playerChips += selectedBet;
     }
     
     // 勝敗が決まり、チップ処理が終わったら、ダブルダウンで2倍になったselectedBetを元の確定額に戻す
@@ -399,7 +399,7 @@ confirmButton.addEventListener('click', () => {
     
     bettingScreen.classList.remove('active');
     gameScreen.classList.add('active');
-
+    playerChips -= selectedBet;
     startGame();
 });
 
