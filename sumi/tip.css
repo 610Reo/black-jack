@@ -36,6 +36,7 @@
     flex: 0 1 auto;
     justify-content: center;
     align-items: center;
+}
 
 /* ============ 1. 掛け金コントロール ============ */
 .betting-controls {
@@ -518,4 +519,3 @@
 .suit-pattern-13 span:nth-child(11) { left: 5%; bottom: 5%; }
 .suit-pattern-13 span:nth-child(12) { left: 50%; bottom: 5%; transform: translateX(-50%); }
 .suit-pattern-13 span:nth-child(13) { right: 5%; bottom: 5%; }
-
