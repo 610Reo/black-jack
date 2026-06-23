@@ -1,6 +1,12 @@
 /* ============ ゲームスタート画面 ============ */
 #startScreen {
-    background: linear-gradient(135deg, #228B22 0%, #006400 100%);
+background-image: 
+        linear-gradient(135deg, rgba(34, 139, 34, 0), rgba(0, 100, 0, 0)),
+        url("start.screen.png");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .start-button {
@@ -8,8 +14,9 @@
     height: 80px;
     font-size: 28px;
     font-weight: bold;
+    margin-top: 600px;
     color: white;
-    background: linear-gradient(135deg, #FF6B6B 0%, #EE5A52 100%);
+    background: linear-gradient(135deg, #e43535 0%, #EE5A52 100%);
     border: none;
     border-radius: 15px;
     cursor: pointer;

@@ -485,9 +485,62 @@ if (statsTab && statsPanel) {
     });
 }
 
-window.addEventListener('load', () => {
-    setBetMax();
-    updateBetDisplay(100);
-    updateStats();
-    updateKeyDisplay();
+window.addEventListener("load", () => {
+    bgm.volume = bgmSlider.value / 100;
+    hitSound.volume = seSlider.value / 100;
+    winSound.volume = seSlider.value / 100;
+
+     bgmValue.textContent = bgmSlider.value;
+    seValue.textContent = seSlider.value;
+
 });
+
+const bgm = document.getElementById("bgm");
+const hitSound = document.getElementById("hitSound");
+
+// ゲーム開始でBGM再生
+document.getElementById("startButton").addEventListener("click", () => {
+    bgm.play();
+});
+
+// ヒット時のSE
+document.getElementById("hitButton").addEventListener("click", () => {
+    hitSound.currentTime = 0;
+    hitSound.play();
+});
+document.getElementById("doubleDownButton").addEventListener("click", () => {
+    doubledownSound.currentTime = 0;
+    doubledownSound.play();
+});
+document.getElementById("standButton").addEventListener("click", () => {
+    standSound.currentTime = 0;
+    standSound.play();
+});
+
+document.getElementById("confirmButton").addEventListener("click", () => {
+    confirmSound.currentTime = 0; // 連打しても鳴るように
+    confirmSound.play();
+});
+// BGM音量
+bgmSlider.addEventListener("input", () => {
+    const volume = bgmSlider.value / 100;
+    bgm.volume = volume;
+    bgmValue.textContent = bgmSlider.value;
+});
+
+
+// SE音量
+seSlider.addEventListener("input", () => {
+    const volume = seSlider.value / 100;
+
+    hitSound.volume = volume;
+    winSound.volume = volume;
+    doubledownSound.volume = volume;
+    standSound.volume = volume;
+    resultSound.volume = volume;
+    seValue.textContent = seSlider.value;
+});
+
+
+
+
