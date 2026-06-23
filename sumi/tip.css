@@ -27,6 +27,16 @@
     font-weight: bold;
 }
 
+
+/* ============ 掛け金コントロール ============ */
+.betting-controls {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    flex: 0 1 auto;
+    justify-content: center;
+    align-items: center;
+
 /* ============ 1. 掛け金コントロール ============ */
 .betting-controls {
     display: flex;
@@ -35,15 +45,20 @@
     flex: 0 1 auto;
     justify-content: center;
     align-items: flex-start; 
+
 }
 
-/* スライダー側 */
+/* スライダー */
 .slider-container {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     flex: 1;
+
+    min-width: 200px;
+
     min-width: 200px; 
+
 }
 
 .slider-container label {
@@ -63,7 +78,7 @@
     cursor: pointer;
 }
 
-/* つまみ部分：Chrome / Safari */
+/* Chromeのスライダー自体 */
 .bet-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -82,7 +97,11 @@
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
+
+/* Firefoxのスライダー */
+
 /* つまみ部分：Firefox */
+
 .bet-slider::-moz-range-thumb {
     width: 25px;
     height: 25px;
@@ -99,6 +118,7 @@
     height: 30px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
+
 
 .slider-ticks {
     display: flex;
@@ -118,16 +138,19 @@
     font-size: 12px;
     color: #777;
     padding: 0 5px;
-    margin-top: 2px;
 }
 
+
+/* スピナー（矢印付き数値入力） */
 /* スピナー側 */
+
 .spinner-container {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
-    min-width: 130px;
+    justify-content: flex-start;
+    min-width: 140px;
 }
 
 .spinner-container label {
@@ -138,21 +161,27 @@
 
 .bet-spinner {
     width: 120px;
+    height: 50px;
+    font-size: 24px;
+
     height: 46px; 
     font-size: 22px; 
     font-weight: bold;
     text-align: center;
     border: 2px solid #999;
     border-radius: 8px;
+    margin-bottom: 20px;
     background: white;
     color: #333;
     cursor: pointer;
 }
 
+/* 数値入力のスピナーボタン（矢印） */
+
 .bet-spinner::-webkit-outer-spin-button,
 .bet-spinner::-webkit-inner-spin-button {
     -webkit-appearance: inner-spin-button;
-    width: 25px;
+    width: 30px;
     cursor: pointer;
 }
 
@@ -162,30 +191,37 @@
     box-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
 }
 
+
+/* ============ 現在の掛け金表示 ============ */
 /* ============ 2. 現在の掛け金表示と確定ボタン ============ */
+
 .current-bet {
     text-align: center;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     color: #333;
-    padding: 12px;
+    padding: 15px;
     background: rgba(255, 107, 107, 0.1);
+
     border: 1px solid rgba(255, 107, 107, 0.3); 
+
     border-radius: 8px;
-    margin: 10px 0;
 }
 
 #currentBetAmount {
     color: #FF6B6B;
-    font-size: 26px;
-    font-weight: bold;
-    margin-left: 5px;
+    font-size: 28px;
 }
 
-/* 確定ボタン */
+/* ============ 確定ボタン ============ */
 .confirm-button {
+
+    width: 150px;
+    height: 50px;
+
     width: 160px; 
     height: 48px;
+
     font-size: 18px;
     font-weight: bold;
     color: white;
@@ -194,22 +230,31 @@
     border-radius: 8px;
     cursor: pointer;
     align-self: center;
+
+    margin-top: 20px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+
     box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
     transition: all 0.2s ease; 
+
 }
 
 .confirm-button:hover {
-    transform: scale(1.04);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 .confirm-button:active {
     transform: scale(0.98);
 }
 
+
+
 /* ============ サイド戦績パネル等 ============ */
+
 .side-action {
-    position: fixed; 
+    position: fixed; /* ★修正：絶対位置から画面固定に変更 */
     left: 10px;
     bottom: 20px;
     width: 50px;
@@ -223,30 +268,57 @@
     color: #333;
     font-size: 1.8rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    cursor: pointer; 
-    z-index: 2000; 
-    transition: left 0.3s ease;
+    cursor: pointer; /* ★追加 */
+    z-index: 2000; /* ★追加 */
 }
+
 .side-action.open { left: 210px; }
 
+
+/* 戦績パネル（スライド式修正版） */
 .stats-panel {
     box-sizing: border-box; 
-    position: fixed; 
-    left: -250px; 
+    position: fixed; /* ★修正：絶対位置から画面固定に変更 */
+    left: -250px; /* ★修正：完全に隠れる位置へ */
     bottom: 20px;
+    
     width: 200px; 
-    height: 320px;
+    height: 300px;
     background: white;
-    padding: 15px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
     border: 1px solid #ddd;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    
+    /* ★修正：display: none ではなく visibility と opacity でアニメーションさせる */
+    transition: all 0.3s ease-in-out;
     z-index: 1999;
-    transition: left 0.3s ease;
-    display: flex;
-    flex-direction: column;
+    visibility: hidden;
+    opacity: 0;
 }
-.stats-panel.open { left: 10px; }
+
+.stats-panel.open {
+    visibility: visible;
+    opacity: 1;
+    left: 70px; /* ★ボタンの右側へ表示 */
+}
+
+
+/* タブ（以前のコードに残っていたもの。不要なら削除してOK） */
+.stats-tab {
+    bottom: 60px;
+    left: 100px;
+    width: 50px;
+    height: 50px;
+    background: #333;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 100;
+}
 
 .stats-tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
 .stats-tab-btn { flex: 1; background: #f0f0f0; border: 1px solid #ddd; border-radius: 6px; padding: 6px 0; font-size: 13px; font-weight: bold; cursor: pointer; color: #666; }
@@ -446,3 +518,4 @@
 .suit-pattern-13 span:nth-child(11) { left: 5%; bottom: 5%; }
 .suit-pattern-13 span:nth-child(12) { left: 50%; bottom: 5%; transform: translateX(-50%); }
 .suit-pattern-13 span:nth-child(13) { right: 5%; bottom: 5%; }
+

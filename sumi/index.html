@@ -173,6 +173,7 @@
                     <aside class="settings-sidebar">
                         <button class="tab-btn active" data-tab="volume">音量</button>
                         <button class="tab-btn" data-tab="keybind">キーバインド</button>
+                        <button class="tab-btn" data-tab="design">デザイン</button>
                         <button id="closeSettings" class="close-btn">閉じる</button>
                     </aside>
                     <main class="settings-main">
@@ -191,6 +192,17 @@
                                     <input type="range" id="seVolume" min="0" max="100" value="70">
                                     <span id="seVolumeValue" class="volume-number">70</span>
                                 </div>
+                            </div>
+                        </div>
+                        <div id="design" class="tab-content">
+                            <h3>デザイン</h3>
+                            <div class="setting-item">
+                                <label>テーマ</label>
+                                <select id="themeSelect">
+                                    <option value="green">グリーン</option>
+                                    <option value="pink">ピンク</option>
+                                    <option value="purple">パープル</option>
+                                </select>
                             </div>
                         </div>
                         <div id="keybind" class="tab-content">
