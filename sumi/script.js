@@ -23,6 +23,7 @@ const currentBetAmount = document.getElementById('currentBetAmount'); // 薄赤�
 
 const bgmSlider = document.getElementById('bgmVolume');
 const bgmValueDisplay = document.getElementById('bgmVolumeValue');
+const designSelect = document.getElementById('themeSelect');
 const seSlider = document.getElementById('seVolume');
 const seValueDisplay = document.getElementById('seVolumeValue');
 
@@ -307,6 +308,18 @@ function updateKeyDisplay() {
     });
 }
 
+function updateGameBackground(theme) {
+    const imageMap = {
+        green: './画像/green.png',
+        pink: './画像/pink.png',
+        purple: './画像/purple.png'
+    };
+    const imagePath = imageMap[theme] || imageMap.green;
+    if (gameScreen) {
+        gameScreen.style.background = `linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)), url('${imagePath}') center/cover no-repeat`;
+    }
+}
+
 // ============ 5. ゲーム進行ロジック ============
 function startGame() {
     isGameOver = false;
@@ -559,6 +572,7 @@ tabButtons.forEach(btn => {
 
 bgmSlider.addEventListener('input', function() { bgmValueDisplay.textContent = this.value; });
 seSlider.addEventListener('input', function() { seValueDisplay.textContent = this.value; });
+designSelect.addEventListener('change', function() { updateGameBackground(this.value); });
 
 keySpans.forEach(span => {
     span.addEventListener('click', function() {
@@ -670,4 +684,5 @@ window.addEventListener('load', () => {
     updateBetDisplay(100);
     updateStats();
     updateKeyDisplay();
+    if (designSelect) updateGameBackground(designSelect.value || 'green');
 });
