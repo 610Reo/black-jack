@@ -420,10 +420,6 @@ body {
 }
 
 .tab-content {
-    display: none;
-}
-
-.tab-content.active {
     display: block;
 }
 
@@ -477,190 +473,186 @@ body {
     font-family: monospace;
 }
 
-/* ============ 結果表示オーバーレイ ============ */
+/* ============ 🏳️ プラチナ・シルバーメタリック・リザルトオーバーレイ ============ */
 .result-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.3) !important;
     backdrop-filter: blur(4px);
     display: none;
     justify-content: center;
     align-items: center;
     z-index: 50;
     border-radius: 8px;
-    pointer-events: none;
+    pointer-events: auto; /* 🛠️ オーバーレイ本来の挙動に戻しクリックイベントを正常化 */
 }
 
 .result-overlay.active {
     display: flex;
 }
 
+/* 中央のメインホワイトパネル（銀のフチを太く、より重厚に調整） */
 .result-content {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff 0%, #f4f6f7 100%) !important;
+    
+    border: none !important;
+    border-radius: 16px !important; 
+    
+    /* 太く存在感のある綺麗な銀フチを再現 */
+    box-shadow: 
+        0 0 0 2px #ffffff,                     
+        0 0 0 11px #b5bcbe,                    
+        0 0 0 13px #ffffff,                    
+        0 20px 50px rgba(0, 0, 0, 0.35),       
+        inset 0 0 12px rgba(0, 0, 0, 0.05) !important;
+        
+    padding: 40px 50px !important;
     text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    width: 480px !important;
     pointer-events: auto;
+    animation: scaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* タイトルフォント */
 #resultMessage {
-    font-size: 32px;
-    margin-bottom: 24px;
-    color: #333;
-    font-weight: bold;
+    font-size: 36px !important;
+    font-weight: 900 !important;
+    color: #2c3e50 !important; 
+    letter-spacing: 3px !important;
+    margin-bottom: 35px !important;
+    font-family: 'Impact', 'Arial Black', sans-serif !important;
+    text-transform: uppercase;
 }
 
-/* ============ レスポンシブ ============ */
-@media (max-width: 1000px) {
-    .game-board {
-        width: 1000px;
-        height: 800px;
-    }
-}
-
-/* 🎰 パチンコ・ラッシュ風 漆黒＆極太ゴールドテーマ */
+/* パチンコ側の構造にも完全に同期 */
 .pachinko-theme {
-    background: rgba(10, 10, 13, 0.92) !important; /* 漆黒背景 */
-    backdrop-filter: blur(8px);
-}
-
-.pachinko-result-content {
-    background: radial-gradient(circle, #22222a 0%, #0d0d11 100%);
-    border: 4px solid #b89742; /* 金のフレーム */
-    box-shadow: 0 0 30px rgba(184, 151, 66, 0.4), inset 0 0 20px rgba(0,0,0,0.8);
-    padding: 35px 50px;
-    border-radius: 16px;
-    text-align: center;
-    width: 500px;
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(4px);
     pointer-events: auto;
-    animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
-
-/* 液晶上部のタイトル */
+.pachinko-result-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f4f6f7 100%) !important;
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 
+        0 0 0 2px #ffffff, 
+        0 0 0 11px #b5bcbe, 
+        0 0 0 13px #ffffff, 
+        0 20px 50px rgba(0, 0, 0, 0.35), 
+        inset 0 0 12px rgba(0, 0, 0, 0.05) !important;
+    padding: 40px 50px !important;
+    text-align: center;
+    width: 480px !important;
+    pointer-events: auto;
+    animation: scaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 .pachinko-title {
-    font-size: 42px;
-    font-weight: 900;
-    color: #e5c158;
-    text-shadow: 0 0 10px rgba(229, 193, 88, 0.6), 0 4px 0 #7c611c;
-    letter-spacing: 2px;
-    margin-bottom: 30px;
-    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 36px !important;
+    font-weight: 900 !important;
+    color: #2c3e50 !important;
+    letter-spacing: 3px !important;
+    margin-bottom: 35px !important;
+    font-family: 'Impact', 'Arial Black', sans-serif !important;
 }
 
+/* 内側のスコア表レイアウト */
 .pachinko-stats-container {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
 }
 
-/* 各行のレイアウト */
 .pachinko-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    padding-bottom: 8px;
-}
-
-.pachinko-row.mini {
-    padding: 2px 5px;
+    border-bottom: 1px solid #eef2f5; 
+    padding-bottom: 6px;
 }
 
 .pachinko-label {
-    font-size: 13px;
-    font-weight: bold;
-    color: #aaa;
-    letter-spacing: 1px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #7f8c8d;
+    letter-spacing: 0.5px;
 }
 
-/* パチンコの液晶フォント風（無骨な等幅・太字） */
+/* スコアの数字フォント */
 .font-digital {
-    font-family: 'Impact', 'Courier New', sans-serif;
-    font-size: 24px;
+    font-family: 'Impact', 'Arial Black', sans-serif !important;
+    font-size: 26px !important;
     letter-spacing: 1px;
-    color: #fff;
-    text-shadow: 0 0 4px rgba(255,255,255,0.3);
+    color: #2c3e50;
+    text-shadow: none !important;
 }
 
-/* 配色指定 */
-.text-blue { color: #38b6ff; text-shadow: 0 0 8px rgba(56,182,255,0.5); }
-.text-red  { color: #ff4a4a; text-shadow: 0 0 8px rgba(255,74,74,0.5); }
+/* 勝敗の色調 */
+.text-blue { color: #2980b9 !important; } 
+.text-red  { color: #e74c3c !important; } 
 
 .pachinko-divider {
-    height: 2px;
-    background: linear-gradient(90deg, transparent 0%, #b89742 50%, transparent 100%);
-    margin: 10px 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #ccc 50%, transparent 100%);
+    margin: 20px 0;
 }
 
-/* メイン報酬（チップ獲得数）を目立たせる */
 .pachinko-row.main-reward {
     border-bottom: none;
-    padding: 10px 0;
+    padding: 5px 0;
 }
 
 .gold-text {
-    color: #ffd700 !important;
-    text-shadow: 0 0 12px rgba(255,215,0,0.6), 2px 2px 2px #000;
-}
-
-.silver-text {
-    color: #e0e0e0 !important;
-    text-shadow: 0 0 8px rgba(224,224,224,0.5), 1px 1px 2px #000;
+    color: #2c3e50 !important; 
+    font-weight: 900 !important;
 }
 
 .big-number {
     font-size: 46px !important;
 }
 
-/* 🎰 明滅して主張するボタン演出 */
+/* 🔘 PUSH START ボタン */
 .pachinko-btn {
-    margin-top: 35px;
+    margin-top: 30px;
     width: 100%;
     padding: 16px;
-    border: 3px solid #ff4a4a;
-    background: linear-gradient(180deg, #ff2a2a 0%, #990000 100%);
-    color: #fff;
-    font-size: 20px;
-    font-weight: 900;
-    border-radius: 50px;
+    border: none !important;
+    background: linear-gradient(180deg, #34495e 0%, #2c3e50 100%) !important;
+    color: #ffffff !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    border-radius: 8px !important;
     cursor: pointer;
-    box-shadow: 0 0 15px rgba(255,74,74,0.6), inset 0 2px 4px rgba(255,255,255,0.4);
-    letter-spacing: 1px;
-    text-shadow: 0 2px 2px rgba(0,0,0,0.6);
-    animation: pulseGlow 1.5s infinite ease-in-out;
-    transition: transform 0.1s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+    letter-spacing: 2px;
+    font-family: 'Impact', 'Arial Black', sans-serif !important;
+    transition: all 0.2s ease;
+    pointer-events: auto;
 }
 
 .pachinko-btn:hover {
-    filter: brightness(1.2);
+    background: linear-gradient(180deg, #415b76 0%, #34495e 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
 }
 
 .pachinko-btn:active {
-    transform: scale(0.97);
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* アニメーションキーフレーム */
 @keyframes scaleUp {
-    from { transform: scale(0.8); opacity: 0; }
+    from { transform: scale(0.92); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
 
-@keyframes pulseGlow {
-    0% { box-shadow: 0 0 10px rgba(255,74,74,0.5); }
-    50% { box-shadow: 0 0 25px rgba(255,74,74,0.9), 0 0 10px rgba(255,215,0,0.4); }
-    100% { box-shadow: 0 0 10px rgba(255,74,74,0.5); }
-}
-
-/* ============ 戦績の％表示のズレ修正 ============ */
-#statsContentTotal p {
+/* ============ 🛠️ 干渉バグの修正（セレクタの指定範囲を限定化） ============ */
+#statsPanel #statsContentTotal p {
     position: relative;
 }
-
-#statsContentTotal p span#total-winrate {
+#statsPanel #statsContentTotal p span#total-winrate {
+    position: absolute;
     right: 65px !important;
 }
-
