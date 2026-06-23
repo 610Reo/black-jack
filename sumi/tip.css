@@ -27,14 +27,14 @@
     font-weight: bold;
 }
 
-/* ============ 1. 掛け金コントロール（Aベース・一部Bの崩れ対策を統合） ============ */
+/* ============ 1. 掛け金コントロール ============ */
 .betting-controls {
     display: flex;
     flex-direction: row;
-    gap: 25px; /* Aの幅広な隙間 */
+    gap: 25px; 
     flex: 0 1 auto;
     justify-content: center;
-    align-items: flex-start; /* Aの特徴：上揃え */
+    align-items: flex-start; 
 }
 
 /* スライダー側 */
@@ -43,7 +43,7 @@
     flex-direction: column;
     gap: 8px;
     flex: 1;
-    min-width: 200px; /* Bの崩れ対策：極端に横潰れするのを防ぐ */
+    min-width: 200px; 
 }
 
 .slider-container label {
@@ -82,7 +82,7 @@
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* つまみ部分：Firefox（Bのホバー拡大アニメーションも統合） */
+/* つまみ部分：Firefox */
 .bet-slider::-moz-range-thumb {
     width: 25px;
     height: 25px;
@@ -100,7 +100,6 @@
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* Aの特徴：スライダー下の目盛り表示 */
 .slider-ticks {
     display: flex;
     justify-content: space-between;
@@ -122,7 +121,7 @@
     margin-top: 2px;
 }
 
-/* スピナー側（数値入力ボックス） */
+/* スピナー側 */
 .spinner-container {
     display: flex;
     flex-direction: column;
@@ -139,8 +138,8 @@
 
 .bet-spinner {
     width: 120px;
-    height: 46px; /* Aのサイズ */
-    font-size: 22px; /* Aのサイズ */
+    height: 46px; 
+    font-size: 22px; 
     font-weight: bold;
     text-align: center;
     border: 2px solid #999;
@@ -150,7 +149,6 @@
     cursor: pointer;
 }
 
-/* スピナーの矢印（Aのサイズ） */
 .bet-spinner::-webkit-outer-spin-button,
 .bet-spinner::-webkit-inner-spin-button {
     -webkit-appearance: inner-spin-button;
@@ -164,7 +162,7 @@
     box-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
 }
 
-/* ============ 2. 現在の掛け金表示と確定ボタン（Aベース） ============ */
+/* ============ 2. 現在の掛け金表示と確定ボタン ============ */
 .current-bet {
     text-align: center;
     font-size: 18px;
@@ -172,7 +170,7 @@
     color: #333;
     padding: 12px;
     background: rgba(255, 107, 107, 0.1);
-    border: 1px solid rgba(255, 107, 107, 0.3); /* Aの特徴：薄い赤枠 */
+    border: 1px solid rgba(255, 107, 107, 0.3); 
     border-radius: 8px;
     margin: 10px 0;
 }
@@ -186,7 +184,7 @@
 
 /* 確定ボタン */
 .confirm-button {
-    width: 160px; /* Aのサイズ */
+    width: 160px; 
     height: 48px;
     font-size: 18px;
     font-weight: bold;
@@ -197,7 +195,7 @@
     cursor: pointer;
     align-self: center;
     box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
-    transition: all 0.2s ease; /* Aの標準速度 */
+    transition: all 0.2s ease; 
 }
 
 .confirm-button:hover {
@@ -209,7 +207,7 @@
     transform: scale(0.98);
 }
 
-/* ============ 以下、サイド戦績パネル等（Aの連動・タブ式を採用） ============ */
+/* ============ サイド戦績パネル等 ============ */
 .side-action {
     position: fixed; 
     left: 10px;
@@ -229,7 +227,6 @@
     z-index: 2000; 
     transition: left 0.3s ease;
 }
-/* Aの特徴：開いたときにボタンも一緒に右へスライドする */
 .side-action.open { left: 210px; }
 
 .stats-panel {
@@ -251,9 +248,201 @@
 }
 .stats-panel.open { left: 10px; }
 
-/* Aの特徴：タブ切り替え用のスタイル群 */
 .stats-tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
 .stats-tab-btn { flex: 1; background: #f0f0f0; border: 1px solid #ddd; border-radius: 6px; padding: 6px 0; font-size: 13px; font-weight: bold; cursor: pointer; color: #666; }
 .stats-tab-btn.active { background: #333; color: #fff; border-color: #333; }
 .stats-tab-content { display: none; flex-direction: column; }
 .stats-tab-content.active { display: flex; }
+
+
+/* ==========================================================================
+   🃏 トランプ風リアルカードレイアウト（ディンプル配置パターン：A〜K完全再現版）
+   ========================================================================== */
+
+/* カード表面の基本スタイル */
+.card-front {
+    position: relative !important;
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    font-family: 'Helvetica Neue', Arial, sans-serif !important;
+    box-sizing: border-box !important;
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+.card-red {
+    color: #e53935 !important;
+}
+
+/* ミニインデックス（四隅の文字） */
+.card-index {
+    position: absolute;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 1.1;
+    text-align: center;
+    padding: 4px;
+    font-family: monospace, sans-serif;
+    z-index: 10;
+}
+.card-index.top-left { top: 2px; left: 4px; }
+.card-index.bottom-right { bottom: 2px; right: 4px; transform: rotate(180deg); }
+
+/* 中央配置セーフエリア（左上と右下のインデックスの完全に間の空間に収める） */
+.card-center {
+    position: absolute;
+    top: 42px;
+    bottom: 42px;
+    left: 22px;
+    right: 22px;
+    box-sizing: border-box !important;
+    z-index: 5;
+}
+
+/* ジョーカー */
+.joker-art {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    font-size: 42px;
+    line-height: 1;
+}
+
+/* マーク共通の基本スタイル */
+.card-center span {
+    font-size: 13px;
+    line-height: 1;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute !important;
+}
+
+/* --------------------------------------------------------------------------
+   各数字・絵札（1〜13）の配置グリッドロジック
+   -------------------------------------------------------------------------- */
+
+/* 1 (A): ど真ん中 */
+.suit-pattern-1 span { left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 28px; }
+
+/* 2: 上下に縦並び */
+.suit-pattern-2 span:nth-child(1) { left: 50%; top: 5%; transform: translateX(-50%); }
+.suit-pattern-2 span:nth-child(2) { left: 50%; bottom: 5%; transform: translateX(-50%); }
+
+/* 3: 真ん中に縦3つ */
+.suit-pattern-3 span:nth-child(1) { left: 50%; top: 5%; transform: translateX(-50%); }
+.suit-pattern-3 span:nth-child(2) { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.suit-pattern-3 span:nth-child(3) { left: 50%; bottom: 5%; transform: translateX(-50%); }
+
+/* 4: 四隅 (2x2) */
+.suit-pattern-4 span:nth-child(1) { left: 5%; top: 5%; }
+.suit-pattern-4 span:nth-child(2) { right: 5%; top: 5%; }
+.suit-pattern-4 span:nth-child(3) { left: 5%; bottom: 5%; }
+.suit-pattern-4 span:nth-child(4) { right: 5%; bottom: 5%; }
+
+/* 5: 四隅 + ど真ん中 */
+.suit-pattern-5 span:nth-child(1) { left: 5%; top: 5%; }
+.suit-pattern-5 span:nth-child(2) { right: 5%; top: 5%; }
+.suit-pattern-5 span:nth-child(3) { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.suit-pattern-5 span:nth-child(4) { left: 5%; bottom: 5%; }
+.suit-pattern-5 span:nth-child(5) { right: 5%; bottom: 5%; }
+
+/* 6: 縦3つを左右に配置 (3x2) */
+.suit-pattern-6 span:nth-child(1) { left: 5%; top: 5%; }
+.suit-pattern-6 span:nth-child(2) { right: 5%; top: 5%; }
+.suit-pattern-6 span:nth-child(3) { left: 5%; top: 50%; transform: translateY(-50%); }
+.suit-pattern-6 span:nth-child(4) { right: 5%; top: 50%; transform: translateY(-50%); }
+.suit-pattern-6 span:nth-child(5) { left: 5%; bottom: 5%; }
+.suit-pattern-6 span:nth-child(6) { right: 5%; bottom: 5%; }
+
+/* 7: 6の上4つの真ん中に1つ足す */
+.suit-pattern-7 span:nth-child(1) { left: 5%; top: 5%; }
+.suit-pattern-7 span:nth-child(2) { right: 5%; top: 5%; }
+.suit-pattern-7 span:nth-child(3) { left: 50%; top: 28%; transform: translateX(-50%); } 
+.suit-pattern-7 span:nth-child(4) { left: 5%; top: 50%; transform: translateY(-50%); }
+.suit-pattern-7 span:nth-child(5) { right: 5%; top: 50%; transform: translateY(-50%); }
+.suit-pattern-7 span:nth-child(6) { left: 5%; bottom: 5%; }
+.suit-pattern-7 span:nth-child(7) { right: 5%; bottom: 5%; }
+
+/* 8: 7の逆（下側中央）にも1つ足す */
+.suit-pattern-8 span:nth-child(1) { left: 5%; top: 5%; }
+.suit-pattern-8 span:nth-child(2) { right: 5%; top: 5%; }
+.suit-pattern-8 span:nth-child(3) { left: 50%; top: 28%; transform: translateX(-50%); }  
+.suit-pattern-8 span:nth-child(4) { left: 5%; top: 50%; transform: translateY(-50%); }
+.suit-pattern-8 span:nth-child(5) { right: 5%; top: 50%; transform: translateY(-50%); }
+.suit-pattern-8 span:nth-child(6) { left: 50%; bottom: 28%; transform: translateX(-50%); } 
+.suit-pattern-8 span:nth-child(7) { left: 5%; bottom: 5%; }
+.suit-pattern-8 span:nth-child(8) { right: 5%; bottom: 5%; }
+
+/* 💡 9: 左右の真ん中2つを美しく上下に開いた伝統配置 */
+.suit-pattern-9 span { position: absolute !important; }
+/* 外側の4（四隅） */
+.suit-pattern-9 span:nth-child(1) { left: 10%; top: 8%; }
+.suit-pattern-9 span:nth-child(2) { right: 10%; top: 8%; }
+.suit-pattern-9 span:nth-child(3) { left: 10%; bottom: 8%; }
+.suit-pattern-9 span:nth-child(4) { right: 10%; bottom: 8%; }
+/* 内側に入り込む5（インナー真ん中を上下に引き離す） */
+.suit-pattern-9 span:nth-child(5) { left: 10%; top: 32%; }
+.suit-pattern-9 span:nth-child(6) { right: 10%; top: 32%; }
+.suit-pattern-9 span:nth-child(7) { left: 50%; top: 50%; transform: translate(-50%, -50%); } /* ど真ん中 */
+.suit-pattern-9 span:nth-child(8) { left: 10%; bottom: 32%; }
+.suit-pattern-9 span:nth-child(9) { right: 10%; bottom: 32%; }
+
+/* 💡 10: サイコロの「5」の目を上下に綺麗に2枚並べた伝統配置 */
+.suit-pattern-10 span { position: absolute !important; }
+/* 上半分の「5」 */
+.suit-pattern-10 span:nth-child(1) { left: 10%; top: 8%; }
+.suit-pattern-10 span:nth-child(2) { right: 10%; top: 8%; }
+.suit-pattern-10 span:nth-child(3) { left: 50%; top: 22%; transform: translateX(-50%); } /* 上の真ん中 */
+.suit-pattern-10 span:nth-child(4) { left: 10%; top: 32%; }
+.suit-pattern-10 span:nth-child(5) { right: 10%; top: 32%; }
+/* 下半分の「5」 */
+.suit-pattern-10 span:nth-child(6) { left: 10%; bottom: 32%; }
+.suit-pattern-10 span:nth-child(7) { right: 10%; bottom: 32%; }
+.suit-pattern-10 span:nth-child(8) { left: 50%; bottom: 22%; transform: translateX(-50%); } /* 下の真ん中 */
+.suit-pattern-10 span:nth-child(9) { left: 10%; bottom: 8%; }
+.suit-pattern-10 span:nth-child(10) { right: 10%; bottom: 8%; }
+
+/* J (11): 10の配置 + ど真ん中に1つ追加 */
+.suit-pattern-11 span:nth-child(1) { left: 5%; top: 5%; }
+.suit-pattern-11 span:nth-child(2) { right: 5%; top: 5%; }
+.suit-pattern-11 span:nth-child(3) { left: 50%; top: 20%; transform: translateX(-50%); }  
+.suit-pattern-11 span:nth-child(4) { left: 50%; top: 38%; transform: translateX(-50%); }  
+.suit-pattern-11 span:nth-child(5) { left: 5%; top: 50%; transform: translateY(-50%); }
+.suit-pattern-11 span:nth-child(6) { left: 50%; top: 50%; transform: translate(-50%, -50%); } 
+.suit-pattern-11 span:nth-child(7) { right: 5%; top: 50%; transform: translateY(-50%); }
+.suit-pattern-11 span:nth-child(8) { left: 50%; bottom: 38%; transform: translateX(-50%); } 
+.suit-pattern-11 span:nth-child(9) { left: 50%; bottom: 20%; transform: translateX(-50%); } 
+.suit-pattern-11 span:nth-child(10) { left: 5%; bottom: 5%; }
+.suit-pattern-11 span:nth-child(11) { right: 5%; bottom: 5%; }
+
+/* Q (12): 左右に4つずつ、中央の列に縦に4つ配置 (4x3グリッド) */
+.suit-pattern-12 span:nth-child(1) { left: 5%; top: 5%; }
+.suit-pattern-12 span:nth-child(2) { left: 50%; top: 5%; transform: translateX(-50%); }
+.suit-pattern-12 span:nth-child(3) { right: 5%; top: 5%; }
+.suit-pattern-12 span:nth-child(4) { left: 5%; top: 35%; }
+.suit-pattern-12 span:nth-child(5) { left: 50%; top: 35%; transform: translateX(-50%); }
+.suit-pattern-12 span:nth-child(6) { right: 5%; top: 35%; }
+.suit-pattern-12 span:nth-child(7) { left: 5%; bottom: 35%; }
+.suit-pattern-12 span:nth-child(8) { left: 50%; bottom: 35%; transform: translateX(-50%); }
+.suit-pattern-12 span:nth-child(9) { right: 5%; bottom: 35%; }
+.suit-pattern-12 span:nth-child(10) { left: 5%; bottom: 5%; }
+.suit-pattern-12 span:nth-child(11) { left: 50%; bottom: 5%; transform: translateX(-50%); }
+.suit-pattern-12 span:nth-child(12) { right: 5%; bottom: 5%; }
+
+/* K (13): 12の配置 + ど真ん中に1つ追加 */
+.suit-pattern-13 span:nth-child(1) { left: 5%; top: 5%; }
+.suit-pattern-13 span:nth-child(2) { left: 50%; top: 5%; transform: translateX(-50%); }
+.suit-pattern-13 span:nth-child(3) { right: 5%; top: 5%; }
+.suit-pattern-13 span:nth-child(4) { left: 5%; top: 32%; }
+.suit-pattern-13 span:nth-child(5) { left: 50%; top: 32%; transform: translateX(-50%); }
+.suit-pattern-13 span:nth-child(6) { right: 5%; top: 32%; }
+.suit-pattern-13 span:nth-child(7) { left: 50%; top: 50%; transform: translate(-50%, -50%); } 
+.suit-pattern-13 span:nth-child(8) { left: 5%; bottom: 32%; }
+.suit-pattern-13 span:nth-child(9) { left: 50%; bottom: 32%; transform: translateX(-50%); }
+.suit-pattern-13 span:nth-child(10) { right: 5%; bottom: 32%; }
+.suit-pattern-13 span:nth-child(11) { left: 5%; bottom: 5%; }
+.suit-pattern-13 span:nth-child(12) { left: 50%; bottom: 5%; transform: translateX(-50%); }
+.suit-pattern-13 span:nth-child(13) { right: 5%; bottom: 5%; }
