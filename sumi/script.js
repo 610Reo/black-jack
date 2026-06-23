@@ -19,7 +19,7 @@ const restartGameButton = document.getElementById('restartGameButton');
 // スライダー・スピナー・薄赤枠用DOM
 const betSlider = document.getElementById('betSlider');
 const betSpinner = document.getElementById('betSpinner');
-const currentBetAmount = document.getElementById('currentBetAmount'); // 薄赤枠テキスト
+const currentBetAmount = document.getElementById('currentBetAmount'); 
 
 const bgmSlider = document.getElementById('bgmVolume');
 const bgmValueDisplay = document.getElementById('bgmVolumeValue');
@@ -84,9 +84,10 @@ for (const suit of suits) {
     }
 }
 
+// 💡 JOKERデータ定義
 const jokerTypes = [
     { suit: 'color', rank: 'JOKER', value: 0, display: '🃏JOKER' },
-    { suit: 'black', rank: 'JOKER', value: 0, display: '🖤JOKER' }
+    { suit: 'black', rank: 'JOKER', value: 0, display: '🃏JOKER' }
 ];
 for (const joker of jokerTypes) {
     cardPool.push(joker);
@@ -148,9 +149,68 @@ function calculateTotal(hand) {
 function createCardElement(card, isHidden = false) {
     const cardDiv = document.createElement('div');
     cardDiv.className = isHidden ? 'card card-back' : 'card card-front';
+    
     if (!isHidden) {
-        cardDiv.textContent = card.display;
+        cardDiv.classList.add(`rank-${card.rank}`);
     }
+    
+    // カラーJOKER、ハート、ダイヤは赤色クラスを付与
+    if (!isHidden && (card.suit === '♥' || card.suit === '♦' || card.suit === 'color')) {
+        cardDiv.classList.add('card-red');
+    }
+
+    if (!isHidden) {
+        // 1. 左上のミニインデックス
+        const topLeft = document.createElement('div');
+        topLeft.className = 'card-index top-left';
+        topLeft.innerHTML = card.rank === 'JOKER' ? 'J<br>O<br>K<br>E<br>R' : `${card.rank}<br>${card.suit}`;
+        cardDiv.appendChild(topLeft);
+
+        // 2. 中央エリア
+        const center = document.createElement('div');
+        center.className = 'card-center';
+        
+        // 💡 J, Q, K をJOKERと同じように「1つの大きな絵柄（アート）」として処理
+        if (card.rank === 'JOKER' || ['J', 'Q', 'K'].includes(card.rank)) {
+            center.classList.add('joker-art'); // JOKER用のアート用CSSクラスを共有適用
+            
+            if (card.rank === 'JOKER') {
+                center.textContent = '🃏';
+                if (card.suit === 'black') {
+                    center.style.filter = 'grayscale(100%)'; 
+                }
+            } else if (card.rank === 'J') {
+                center.textContent = 'J'; // ジャック（騎士風）
+            } else if (card.rank === 'Q') {
+                center.textContent = 'Q'; // クイーン（女王）
+            } else if (card.rank === 'K') {
+                center.textContent = 'K'; // キング（王冠・国王）
+            }
+        } else if (card.rank === 'A') {
+            center.classList.add('suit-pattern-1');
+            const icon = document.createElement('span');
+            icon.textContent = card.suit;
+            center.appendChild(icon);
+        } else {
+            // 2〜10の数字カード
+            let count = Number(card.rank); 
+            center.classList.add(`suit-pattern-${count}`);
+            
+            for (let i = 0; i < count; i++) {
+                const icon = document.createElement('span');
+                icon.textContent = card.suit;
+                center.appendChild(icon);
+            }
+        }
+        cardDiv.appendChild(center);
+
+        // 3. 右下のミニインデックス
+        const bottomRight = document.createElement('div');
+        bottomRight.className = 'card-index bottom-right';
+        bottomRight.innerHTML = card.rank === 'JOKER' ? 'J<br>O<br>K<br>E<br>R' : `${card.rank}<br>${card.suit}`;
+        cardDiv.appendChild(bottomRight);
+    }
+    
     return cardDiv;
 }
 
@@ -231,7 +291,7 @@ function clampBet(value) {
     const minBet = Number(betSlider.min || 10);
     const maxBet = Number(betSlider.max || playerChips);
     let val = Math.max(minBet, Math.min(maxBet, Number(value)));
-    return Math.round(val / 10) * 10; // 10刻みに丸める
+    return Math.round(val / 10) * 10;
 }
 
 function updateBetDisplay(value) {
@@ -240,7 +300,6 @@ function updateBetDisplay(value) {
     if (betSlider) betSlider.value = selectedBet;
     if (betSpinner) betSpinner.value = selectedBet;
     
-    // 薄赤枠内の数値をリアルタイム更新（HTML側に¥マークがあるため数値のみ代入）
     if (currentBetAmount) {
         currentBetAmount.textContent = selectedBet;
     }
@@ -287,7 +346,6 @@ function updateHandDisplay() {
         dealerScoreDisplay.textContent = cardValue(dealerHand[0]);
     }
 
-    // ダブルダウン可能条件：最初の2枚、かつ追加の賭け金（現在のselectedBetと同額）を持っていること
     if (playerHand.length === 2 && !isGameOver && playerChips >= selectedBet) {
         doubleDownButton.disabled = false;
         doubleDownButton.style.opacity = "1";
@@ -336,7 +394,6 @@ function startGame() {
     updateHandDisplay();
 }
 
-// 配当処理関数
 function finishGame(result, message, isPureWin = false) {
     isGameOver = true;
     totalGames++;
@@ -346,7 +403,6 @@ function finishGame(result, message, isPureWin = false) {
         winCount++;
         lifetimeWins++; 
         
-        // --- 同じ模様（スーツ）ボーナスの判定 ---
         const firstSuit = playerHand[0].suit;
         const isSameSuit = playerHand.every(card => card.suit === firstSuit);
         const isDoubleDown = selectedBet > lastConfirmedBet;
@@ -401,12 +457,10 @@ function finishGame(result, message, isPureWin = false) {
     localStorage.setItem('bj_lifetimeLoses', lifetimeLoses);
     localStorage.setItem('bj_lifetimeDraws', lifetimeDraws);
 
-    // 1ゲーム終わったら、確定額ベースに戻して最大値を再計算
     updateBetDisplay(lastConfirmedBet);
     updateStats();
     setBetMax();
     
-    // 【破産チェック】
     if (playerChips <= 0) {
         const denominator = totalGames - drawCount;
         const rate = denominator === 0 ? 0 : Math.floor((winCount / denominator) * 100);
@@ -496,7 +550,7 @@ confirmButton.addEventListener('click', () => {
     
     bettingScreen.classList.remove('active');
     gameScreen.classList.add('active');
-    playerChips -= selectedBet; // 初回ベット分の引き去り
+    playerChips -= selectedBet; 
     startGame();
 });
 
@@ -541,7 +595,6 @@ if (restartGameButton) {
     });
 }
 
-// スライダー・スピナー連動
 if (betSlider) {
     betSlider.addEventListener('input', (e) => {
         updateBetDisplay(e.target.value);
@@ -571,8 +624,12 @@ tabButtons.forEach(btn => {
 });
 
 bgmSlider.addEventListener('input', function() { bgmValueDisplay.textContent = this.value; });
+
 seSlider.addEventListener('input', function() { seValueDisplay.textContent = this.value; });
 designSelect.addEventListener('change', function() { updateGameBackground(this.value); });
+
+seSlider.addEventListener('input', function() { seVolumeValue.textContent = this.value; });
+
 
 keySpans.forEach(span => {
     span.addEventListener('click', function() {
