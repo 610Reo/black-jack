@@ -801,6 +801,41 @@ window.addEventListener('load', () => {
     updateBetDisplay(100);
     updateStats();
     updateKeyDisplay();
+});
+
+// ==========================================
+// 🎰 【追記】ゲームオーバー回数（通算）の管理ロジック
+// ==========================================
+
+// 1. ローカルストレージから通算ゲームオーバー回数を取得して変数に格納
+let lifetimeGameOvers = Number(localStorage.getItem('bj_lifetimeGameOvers')) || 0;
+
+// 2. ページ読み込み完了時に通算ゲームオーバー回数を画面に表示する
+window.addEventListener('load', () => {
+    const gameOverElement = document.getElementById('total-gameovers');
+    if (gameOverElement) {
+        gameOverElement.textContent = lifetimeGameOvers;
+    }
+});
+
+// 3. 破産チェック（playerChips <= 0）のタイミングを監視してカウントする処理
+// 既存の「restartGameButton」のクリックイベントと連動させ、ゲームオーバー画面が出ている状態で
+// リスタートが押されたタイミング（＝1回のゲームオーバーから復帰する時）にカウントを確定させます。
+if (restartGameButton) {
+    restartGameButton.addEventListener('click', () => {
+        // チップが0の状態でリスタートボタンが押された場合のみカウントアップ
+        if (playerChips === 1000 && isGameOver) {
+            lifetimeGameOvers++; // カウントを+1
+            localStorage.setItem('bj_lifetimeGameOvers', lifetimeGameOvers); // ローカルストレージに保存
+            
+            // 画面の表示を更新（HTMLの id="total-gameovers"）
+            const gameOverElement = document.getElementById('total-gameovers');
+            if (gameOverElement) {
+                gameOverElement.textContent = lifetimeGameOvers;
+            }
+        }
+    });
+}
     if (designSelect) updateGameBackground(designSelect.value || 'green');
 });
 
