@@ -419,7 +419,13 @@ body {
     overflow-y: auto;
 }
 
+/* 🛠️ Aのタブ切替ロジックをBに適用：初期状態は非表示 */
 .tab-content {
+    display: none;
+}
+
+/* 🛠️ Aのタブ切替ロジックをBに適用：アクティブ時のみ表示 */
+.tab-content.active {
     display: block;
 }
 
@@ -503,9 +509,9 @@ body {
     
     /* 太く存在感のある綺麗な銀フチを再現 */
     box-shadow: 
-        0 0 0 2px #ffffff,                     
-        0 0 0 11px #b5bcbe,                    
-        0 0 0 13px #ffffff,                    
+        0 0 0 2px #ffffff,                      
+        0 0 0 11px #b5bcbe,                     
+        0 0 0 13px #ffffff,                     
         0 20px 50px rgba(0, 0, 0, 0.35),       
         inset 0 0 12px rgba(0, 0, 0, 0.05) !important;
         
