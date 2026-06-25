@@ -40,7 +40,9 @@ body {
 
 /* ============ ゲーム画面・ボード構成 ============ */
 #gameScreen {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
+        url('画像/green.png') center/cover no-repeat;
     padding: 25px;
     position: relative;
 }
@@ -58,9 +60,9 @@ body {
     gap: 20px;
     padding: 24px;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(200, 200, 200, 0.3);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .dealer-area {
@@ -135,8 +137,10 @@ body {
 }
 
 .card.card-back {
-    background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
-    color: #666;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)),
+        url('画像/back.jpg') center/cover no-repeat;
+    color: transparent;
     border: 2px solid #999;
 }
 
@@ -144,15 +148,14 @@ body {
     width: 82.5px;
     height: 120px;
     border-radius: 6px;
-    background: linear-gradient(145deg, #f5f5f5 0%, #ececec 100%);
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)),
+        url('画像/back.jpg') center/cover no-repeat;
+    background-size: contain;
     border: 2px solid #999;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #666;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -270,7 +273,7 @@ body {
     position: absolute;
     top: 36px;
     right: 36px;
-    z-index: 100; /* 結果画面(50)より高く設定 */
+    z-index: 100; 
     padding: 10px 16px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -288,7 +291,7 @@ body {
     transform: translateY(-1px);
 }
 
-/* ============ 戦績ボタン（左下固定） ＆ 戦績パネルスタイル ============ */
+/* ============ 戦績ボタン＆戦績パネルスタイル ============ */
 #statsTab {
     position: absolute;
     bottom: 36px;
@@ -417,10 +420,6 @@ body {
 }
 
 .tab-content {
-    display: none;
-}
-
-.tab-content.active {
     display: block;
 }
 
@@ -474,51 +473,186 @@ body {
     font-family: monospace;
 }
 
-/* ============ 結果表示オーバーレイ ============ */
+/* ============ 🏳️ プラチナ・シルバーメタリック・リザルトオーバーレイ ============ */
 .result-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.3) !important;
     backdrop-filter: blur(4px);
     display: none;
     justify-content: center;
     align-items: center;
     z-index: 50;
     border-radius: 8px;
-
-    /* 修正ポイント: オーバーレイ自体はクリックをスルーさせる */
-    pointer-events: none;
+    pointer-events: auto; /* 🛠️ オーバーレイ本来の挙動に戻しクリックイベントを正常化 */
 }
 
 .result-overlay.active {
     display: flex;
 }
 
+/* 中央のメインホワイトパネル（銀のフチを太く、より重厚に調整） */
 .result-content {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff 0%, #f4f6f7 100%) !important;
+    
+    border: none !important;
+    border-radius: 16px !important; 
+    
+    /* 太く存在感のある綺麗な銀フチを再現 */
+    box-shadow: 
+        0 0 0 2px #ffffff,                     
+        0 0 0 11px #b5bcbe,                    
+        0 0 0 13px #ffffff,                    
+        0 20px 50px rgba(0, 0, 0, 0.35),       
+        inset 0 0 12px rgba(0, 0, 0, 0.05) !important;
+        
+    padding: 40px 50px !important;
     text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    width: 480px !important;
+    pointer-events: auto;
+    animation: scaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
-    /* 修正ポイント: 中央のコンテンツ(メッセージやボタン)はクリック可能にする */
+/* タイトルフォント */
+#resultMessage {
+    font-size: 36px !important;
+    font-weight: 900 !important;
+    color: #2c3e50 !important; 
+    letter-spacing: 3px !important;
+    margin-bottom: 35px !important;
+    font-family: 'Impact', 'Arial Black', sans-serif !important;
+    text-transform: uppercase;
+}
+
+/* パチンコ側の構造にも完全に同期 */
+.pachinko-theme {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(4px);
+    pointer-events: auto;
+}
+.pachinko-result-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f4f6f7 100%) !important;
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 
+        0 0 0 2px #ffffff, 
+        0 0 0 11px #b5bcbe, 
+        0 0 0 13px #ffffff, 
+        0 20px 50px rgba(0, 0, 0, 0.35), 
+        inset 0 0 12px rgba(0, 0, 0, 0.05) !important;
+    padding: 40px 50px !important;
+    text-align: center;
+    width: 480px !important;
+    pointer-events: auto;
+    animation: scaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.pachinko-title {
+    font-size: 36px !important;
+    font-weight: 900 !important;
+    color: #2c3e50 !important;
+    letter-spacing: 3px !important;
+    margin-bottom: 35px !important;
+    font-family: 'Impact', 'Arial Black', sans-serif !important;
+}
+
+/* 内側のスコア表レイアウト */
+.pachinko-stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pachinko-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eef2f5; 
+    padding-bottom: 6px;
+}
+
+.pachinko-label {
+    font-size: 14px;
+    font-weight: 800;
+    color: #7f8c8d;
+    letter-spacing: 0.5px;
+}
+
+/* スコアの数字フォント */
+.font-digital {
+    font-family: 'Impact', 'Arial Black', sans-serif !important;
+    font-size: 26px !important;
+    letter-spacing: 1px;
+    color: #2c3e50;
+    text-shadow: none !important;
+}
+
+/* 勝敗の色調 */
+.text-blue { color: #2980b9 !important; } 
+.text-red  { color: #e74c3c !important; } 
+
+.pachinko-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #ccc 50%, transparent 100%);
+    margin: 20px 0;
+}
+
+.pachinko-row.main-reward {
+    border-bottom: none;
+    padding: 5px 0;
+}
+
+.gold-text {
+    color: #2c3e50 !important; 
+    font-weight: 900 !important;
+}
+
+.big-number {
+    font-size: 46px !important;
+}
+
+/* 🔘 PUSH START ボタン */
+.pachinko-btn {
+    margin-top: 30px;
+    width: 100%;
+    padding: 16px;
+    border: none !important;
+    background: linear-gradient(180deg, #34495e 0%, #2c3e50 100%) !important;
+    color: #ffffff !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    border-radius: 8px !important;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+    letter-spacing: 2px;
+    font-family: 'Impact', 'Arial Black', sans-serif !important;
+    transition: all 0.2s ease;
     pointer-events: auto;
 }
 
-#resultMessage {
-    font-size: 32px;
-    margin-bottom: 24px;
-    color: #333;
-    font-weight: bold;
+.pachinko-btn:hover {
+    background: linear-gradient(180deg, #415b76 0%, #34495e 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* ============ レスポンシブ ============ */
-@media (max-width: 1000px) {
-    .game-board {
-        width: 1000px;
-        height: 800px;
-    }
+.pachinko-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important;
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* ============ 🛠️ 干渉バグの修正（セレクタの指定範囲を限定化） ============ */
+#statsPanel #statsContentTotal p {
+    position: relative;
+}
+#statsPanel #statsContentTotal p span#total-winrate {
+    position: absolute;
+    right: 65px !important;
 }

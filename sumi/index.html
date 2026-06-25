@@ -41,15 +41,14 @@
                             class="bet-spinner" 
                             min="10" 
                             max="1000" 
+                            step="10" 
                             value="100"
-                            step="10"
                         >
                     </div>
                 </div>
 
                 <div class="current-bet">
-                    <span>現在の掛け金: ¥</span>
-                    <span id="currentBetAmount">100</span>
+                    <span>現在の掛け金: ¥</span><span id="currentBetAmount">100</span>
                 </div>
 
                 <button id="confirmButton" class="confirm-button">確定</button>
@@ -63,8 +62,7 @@
 
                 <div class="dealer-area">
                     <div class="info-pill">ディーラー</div>
-                    <div class="dealer-cards">
-                        </div>
+                    <div class="dealer-cards"></div>
                     <div class="number-panel">
                         <span class="number-label">今の数字</span>
                         <span class="number-value" id="dealerScore">--</span>
@@ -72,7 +70,7 @@
                 </div>
 
                 <div class="deck-area">
-                    <div class="deck-card">山札</div>
+                    <div class="deck-card"></div>
                 </div>
 
                 <div class="player-area">
@@ -87,11 +85,9 @@
                             <div>現在の掛け金</div>
                             <div>¥<span id="currentBetPill">100</span></div>
                         </div>
-
                     </div>
 
-                    <div class="player-cards">
-                        </div>
+                    <div class="player-cards"></div>
 
                     <div class="player-actions">
                         <button id="hitButton" class="game-control">ヒット</button>
@@ -101,14 +97,28 @@
                 </div>
 
                 <div id="statsPanel" class="stats-panel">
-                    <h3>戦績</h3>
-                    <p>試合数: <span id="totalGames">0</span></p>
-                    <p>勝ち: <span id="winCount">0</span></p>
-                    <p>負け: <span id="loseCount">0</span></p>
-                    <p>引き分け: <span id="drawCount">0</span></p> <!-- ★ここを追加 -->
-                    <p>勝率: <span id="winRate">0</span>%</p>
-                    <p>連勝: <span id="currentStreak">0</span></p>
-                    <p>所持チップ: <span id="playerChips">1000</span></p>
+                    <div class="stats-tabs">
+                        <button class="stats-tab-btn active" data-stats-tab="current">今回</button>
+                        <button class="stats-tab-btn" data-stats-tab="lifetime">通算</button>
+                    </div>
+
+                    <div class="stats-tab-content active" id="statsContentCurrent">
+                        <p>試合数: <span id="totalGames">0</span></p>
+                        <p>勝ち: <span id="winCount">0</span></p>
+                        <p>負け: <span id="loseCount">0</span></p>
+                        <p>引き分け: <span id="drawCount">0</span></p>
+                        <p>勝率: <span id="winRate">0</span>%</p>
+                        <p>連勝: <span id="currentStreak">0</span></p>
+                        <p>所持チップ: <span id="playerChips">1000</span></p>
+                    </div>
+
+                    <div class="stats-tab-content" id="statsContentLifetime">
+                        <p>総試合数: <span id="lifetimeGames">0</span></p>
+                        <p>総勝ち: <span id="lifetimeWins">0</span></p>
+                        <p>総負け: <span id="lifetimeLoses">0</span></p>
+                        <p>総引分: <span id="lifetimeDraws">0</span></p>
+                        <p>通算勝率: <span id="lifetimeRate">0</span>%</p>
+                    </div>
                 </div>
 
                 <div id="resultOverlay" class="result-overlay">
@@ -117,6 +127,45 @@
                         <button id="retryButton" class="game-control">もう一度遊ぶ</button>
                     </div>
                 </div>
+
+                <div id="gameOverOverlay" class="result-overlay pachinko-theme">
+                    <div class="pachinko-result-content">
+                        <div class="pachinko-title">GAME OVER</div>
+                        
+                        <div class="pachinko-stats-container">
+                            <div class="pachinko-row mini">
+                                <span class="pachinko-label">TOTAL GAMES</span>
+                                <span class="pachinko-value font-digital" id="goTotalGames">0</span>
+                            </div>
+                            <div class="pachinko-row mini">
+                                <span class="pachinko-label">WIN</span>
+                                <span class="pachinko-value font-digital text-blue" id="goWinCount">0</span>
+                            </div>
+                            <div class="pachinko-row mini">
+                                <span class="pachinko-label">LOSE</span>
+                                <span class="pachinko-value font-digital text-red" id="goLoseCount">0</span>
+                            </div>
+                            <div class="pachinko-row mini">
+                                <span class="pachinko-label">WIN RATE</span>
+                                <span class="pachinko-value font-digital" id="goWinRate">0%</span>
+                            </div>
+
+                            <div class="pachinko-divider"></div>
+
+                            <div class="pachinko-row main-reward">
+                                <span class="pachinko-label gold-text">TOTAL GET CHIPS</span>
+                                <span class="pachinko-value font-digital gold-text big-number">¥<span id="goTotalEarned">0</span></span>
+                            </div>
+                            <div class="pachinko-row main-reward">
+                                <span class="pachinko-label silver-text">MAX GET CHIPS</span>
+                                <span class="pachinko-value font-digital silver-text">¥<span id="goMaxEarned">0</span></span>
+                            </div>
+                        </div>
+                        
+                        <button id="restartGameButton" class="pachinko-btn">PUSH START</button>
+                    </div>
+                </div>
+
             </div>
 
             <div id="settingsOverlay" class="settings-overlay">
@@ -124,6 +173,7 @@
                     <aside class="settings-sidebar">
                         <button class="tab-btn active" data-tab="volume">音量</button>
                         <button class="tab-btn" data-tab="keybind">キーバインド</button>
+                        <button class="tab-btn" data-tab="design">デザイン</button>
                         <button id="closeSettings" class="close-btn">閉じる</button>
                     </aside>
                     <main class="settings-main">
@@ -142,6 +192,17 @@
                                     <input type="range" id="seVolume" min="0" max="100" value="70">
                                     <span id="seVolumeValue" class="volume-number">70</span>
                                 </div>
+                            </div>
+                        </div>
+                        <div id="design" class="tab-content">
+                            <h3>デザイン</h3>
+                            <div class="setting-item">
+                                <label>テーマ</label>
+                                <select id="themeSelect">
+                                    <option value="green">グリーン</option>
+                                    <option value="pink">ピンク</option>
+                                    <option value="purple">パープル</option>
+                                </select>
                             </div>
                         </div>
                         <div id="keybind" class="tab-content">
