@@ -837,5 +837,5 @@ if (restartGameButton) {
     });
 }
     if (designSelect) updateGameBackground(designSelect.value || 'green');
-});
+
 
